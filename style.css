@@ -1,0 +1,2857 @@
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+
+    background: #eef0e5;
+
+    color: #173c1d;
+}
+
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+.navbar {
+
+    min-height: 105px;
+
+    background: #e0e2d1;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 35px;
+
+    gap: 30px;
+
+    position: relative;
+
+    z-index: 100;
+
+}
+
+
+/* =====================================================
+   BRAND / LOGO
+===================================================== */
+
+.brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    flex-shrink: 0;
+
+}
+
+
+.logo {
+
+    width: 72px;
+
+    height: 72px;
+
+    object-fit: cover;
+
+    border-radius: 16px;
+
+}
+
+
+.brand-name h2 {
+
+    color: #173c1d;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+}
+
+
+.brand-name p {
+
+    color: #596254;
+
+    font-size: 11px;
+
+    letter-spacing: 2.5px;
+
+    margin-top: 8px;
+
+}
+
+
+
+/* =====================================================
+   NAVIGATION LINKS
+===================================================== */
+
+.nav-links {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 32px;
+
+}
+
+
+.nav-links a {
+
+    color: #4d5549;
+
+    text-decoration: none;
+
+    font-size: 16px;
+
+    white-space: nowrap;
+
+    transition: 0.2s;
+
+}
+
+
+.nav-links a:hover {
+
+    color: #123e19;
+
+}
+
+
+
+/* =====================================================
+   CESIUM BUTTON
+===================================================== */
+
+.cesium-btn {
+
+    background: #0c4018;
+
+    color: white;
+
+    text-decoration: none;
+
+    font-weight: bold;
+
+    font-size: 15px;
+
+    padding: 15px 22px;
+
+    border-radius: 30px;
+
+    white-space: nowrap;
+
+    transition: 0.25s;
+
+}
+
+
+.cesium-btn:hover {
+
+    background: #1b5a25;
+
+    transform: translateY(-2px);
+
+}
+
+
+.cesium-btn span {
+
+    margin-left: 7px;
+
+}
+
+
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+
+    min-height: calc(100vh - 88px);
+
+    position: relative;
+
+    background-image: url("src/hero-farmland.jpg");
+
+    background-size: cover;
+
+    background-position: center;
+
+}
+
+
+.hero-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(4, 48, 12, 0.94) 0%,
+            rgba(5, 52, 13, 0.82) 40%,
+            rgba(9, 50, 11, 0.58) 100%
+        );
+
+}
+
+
+.hero-container {
+
+    position: relative;
+
+    z-index: 2;
+
+    min-height: calc(100vh - 88px);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 60px;
+
+    padding: 55px 30px;
+
+}
+
+
+
+/* =====================================================
+   HERO LEFT
+===================================================== */
+
+.hero-left {
+
+    width: 58%;
+
+    max-width: 760px;
+
+}
+
+
+.eyebrow {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 9px 20px;
+
+    border: 1px solid rgba(255,255,255,0.3);
+
+    border-radius: 30px;
+
+    background: rgba(100,120,50,0.3);
+
+    color: #e8e9df;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 30px;
+
+}
+
+
+.leaf {
+
+    font-size: 18px;
+
+}
+
+
+.hero h1 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: clamp(55px, 6vw, 85px);
+
+    line-height: 0.98;
+
+    font-weight: 500;
+
+    letter-spacing: -3px;
+
+    color: #f4f3e8;
+
+    margin-bottom: 35px;
+
+}
+
+
+.hero h1 span {
+
+    color: #73c837;
+
+}
+
+
+.hero-description {
+
+    max-width: 690px;
+
+    color: #f0f2e9;
+
+    font-size: 19px;
+
+    line-height: 1.65;
+
+    margin-bottom: 42px;
+
+}
+
+
+
+/* =====================================================
+   HERO BUTTONS
+===================================================== */
+
+.hero-buttons {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.primary-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    background: #91dc45;
+
+    color: #102d13;
+
+    text-decoration: none;
+
+    padding: 15px 23px 15px 35px;
+
+    border-radius: 35px;
+
+    font-size: 17px;
+
+    transition: 0.25s;
+
+}
+
+
+.primary-btn:hover {
+
+    background: #a4ed5a;
+
+    transform: translateY(-2px);
+
+}
+
+
+.arrow {
+
+    font-size: 25px;
+
+}
+
+
+.secondary-btn {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 15px 35px;
+
+    border: 1px solid rgba(255,255,255,0.55);
+
+    border-radius: 35px;
+
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 16px;
+
+    transition: 0.25s;
+
+}
+
+
+.secondary-btn:hover {
+
+    background: rgba(255,255,255,0.1);
+
+}
+
+
+
+/* =====================================================
+   HERO RIGHT
+===================================================== */
+
+.hero-right {
+
+    width: 40%;
+
+    max-width: 500px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+}
+
+
+.info-card {
+
+    min-height: 112px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 20px 25px;
+
+    border-radius: 25px;
+
+    background: rgba(83,91,37,0.60);
+
+    border: 1px solid rgba(255,255,255,0.2);
+
+    backdrop-filter: blur(5px);
+
+    transition: 0.25s;
+
+}
+
+
+.info-card:hover {
+
+    background: rgba(95,105,42,0.75);
+
+    transform: translateX(-5px);
+
+}
+
+
+.card-icon {
+
+    width: 60px;
+
+    height: 60px;
+
+    flex-shrink: 0;
+
+    border-radius: 20px;
+
+    background: rgba(132,191,45,0.45);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #94e34b;
+
+    font-size: 30px;
+
+}
+
+
+.card-content p {
+
+    color: #d2d5c5;
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+
+    font-weight: bold;
+
+    margin-bottom: 6px;
+
+}
+
+
+.card-content h3 {
+
+    color: white;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 21px;
+
+    font-weight: 600;
+
+}
+
+
+
+/* =====================================================
+   SOLUTIONS SECTION
+===================================================== */
+
+.solutions-section {
+
+    padding: 110px 8%;
+
+    background: #eef0e5;
+
+}
+
+
+.section-heading {
+
+    max-width: 750px;
+
+    margin-bottom: 80px;
+
+}
+
+
+.section-label {
+
+    color: #4e862d;
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.section-heading h2 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: #173c1d;
+
+    font-size: clamp(40px, 5vw, 65px);
+
+    line-height: 1.05;
+
+    margin-bottom: 25px;
+
+}
+
+
+.section-heading > p:last-child {
+
+    color: #5c6657;
+
+    font-size: 18px;
+
+    line-height: 1.7;
+
+}
+
+
+
+/* =====================================================
+   SOLUTION BLOCK
+===================================================== */
+
+.solution-block {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 80px;
+
+    align-items: center;
+
+    max-width: 1200px;
+
+    margin: 0 auto 120px;
+
+}
+
+
+.solution-block.reverse {
+
+    direction: rtl;
+
+}
+
+
+.solution-block.reverse .solution-text {
+
+    direction: ltr;
+
+}
+
+
+.solution-image {
+
+    min-height: 400px;
+
+    border-radius: 30px;
+
+    overflow: hidden;
+
+    background: #173c1d;
+
+}
+
+
+.image-placeholder {
+
+    height: 100%;
+
+    min-height: 400px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #173c1d,
+            #365f27
+        );
+
+    color: white;
+
+}
+
+
+.image-placeholder span {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 100px;
+
+    color: #91dc45;
+
+}
+
+
+.image-placeholder p {
+
+    letter-spacing: 3px;
+
+    font-size: 12px;
+
+}
+
+
+
+/* =====================================================
+   IRRIGATION VISUAL
+===================================================== */
+
+.irrigation-visual {
+
+    min-height: 400px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #244b20,
+            #618b36
+        );
+
+    color: white;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 38px;
+
+    text-align: center;
+
+}
+
+
+.sensor-dot {
+
+    position: absolute;
+
+    width: 18px;
+
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: #91dc45;
+
+    top: 30%;
+
+    left: 30%;
+
+    box-shadow:
+        0 0 0 15px rgba(145,220,69,0.15),
+        0 0 0 30px rgba(145,220,69,0.08);
+
+}
+
+
+.sensor-line {
+
+    position: absolute;
+
+    width: 300px;
+
+    height: 1px;
+
+    background: rgba(255,255,255,0.3);
+
+    transform: rotate(25deg);
+
+}
+
+
+.irrigation-visual span {
+
+    z-index: 2;
+
+}
+
+
+
+/* =====================================================
+   SOLUTION TEXT
+===================================================== */
+
+.solution-text {
+
+    max-width: 520px;
+
+}
+
+
+.solution-number {
+
+    color: #70aa36;
+
+    font-weight: bold;
+
+    font-size: 14px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.solution-text h3 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: #173c1d;
+
+    font-size: 42px;
+
+    line-height: 1.1;
+
+    margin-bottom: 25px;
+
+}
+
+
+.solution-text p {
+
+    color: #596254;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+    margin-bottom: 18px;
+
+}
+
+
+.solution-link {
+
+    display: inline-block;
+
+    margin-top: 10px;
+
+    color: #27631f;
+
+    font-weight: bold;
+
+    text-decoration: none;
+
+}
+
+
+.solution-link:hover {
+
+    text-decoration: underline;
+
+}
+
+
+
+/* =====================================================
+   SMALL SOLUTIONS
+===================================================== */
+
+.solution-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 25px;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+}
+
+
+.small-solution {
+
+    background: white;
+
+    padding: 35px;
+
+    border-radius: 25px;
+
+}
+
+
+.small-icon {
+
+    font-size: 30px;
+
+    color: #71b737;
+
+}
+
+
+.small-solution h3 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: #173c1d;
+
+    font-size: 25px;
+
+    margin: 20px 0 12px;
+
+}
+
+
+.small-solution p {
+
+    color: #667064;
+
+    line-height: 1.6;
+
+}
+
+
+/* =====================================================
+   MAIN SOLUTION
+===================================================== */
+
+.main-solution {
+
+    max-width: 1200px;
+
+    margin: 0 auto 110px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 80px;
+
+    align-items: center;
+
+}
+
+
+/* =====================================================
+   SOLUTION VISUAL
+===================================================== */
+
+/* ==================================================
+   SMART IRRIGATION ANIMATION
+================================================== */
+
+.solution-visual {
+    position: relative;
+    min-height: 550px;
+    border-radius: 28px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at center,
+            rgba(139, 195, 74, 0.12),
+            transparent 35%),
+        #173b2b;
+}
+
+
+/* Main animation container */
+
+.irrigation-animation {
+    position: relative;
+    width: 100%;
+    height: 550px;
+    overflow: hidden;
+}
+
+
+/* Subtle agricultural/grid background */
+
+.field-grid {
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,0.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.035) 1px,
+            transparent 1px
+        );
+
+    background-size: 45px 45px;
+
+    transform: perspective(500px)
+               rotateX(55deg)
+               scale(1.5);
+
+    transform-origin: center bottom;
+
+    opacity: 0.45;
+}
+
+
+/* ==================================================
+   DATA NODES
+================================================== */
+
+.data-node {
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 18px;
+
+    min-width: 175px;
+
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50px;
+
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+
+    color: white;
+
+    opacity: 0.35;
+
+    transform: scale(0.95);
+
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease,
+        box-shadow 0.5s ease,
+        border-color 0.5s ease;
+
+    z-index: 5;
+}
+
+
+/* Positions */
+
+.node-soil {
+    top: 70px;
+    left: 7%;
+}
+
+.node-weather {
+    top: 70px;
+    right: 7%;
+}
+
+.node-tank {
+    bottom: 70px;
+    left: 7%;
+}
+
+.node-remote {
+    bottom: 70px;
+    right: 7%;
+}
+
+
+/* Icons */
+
+.node-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(145, 195, 85, 0.15);
+
+    color: #b8d889;
+
+    font-size: 18px;
+}
+
+
+/* Text */
+
+.node-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.node-text strong {
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+}
+
+.node-text span {
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    opacity: 0.6;
+}
+
+
+/* Active data node */
+
+.data-node.active {
+    opacity: 1;
+
+    transform: scale(1.05);
+
+    border-color: rgba(184, 216, 137, 0.7);
+
+    box-shadow:
+        0 0 25px rgba(145, 195, 85, 0.25),
+        inset 0 0 20px rgba(145, 195, 85, 0.05);
+}
+
+
+/* ==================================================
+   CONNECTION LINES
+================================================== */
+
+.data-lines {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 2;
+
+    pointer-events: none;
+}
+
+
+.flow-line {
+    fill: none;
+
+    stroke: rgba(184, 216, 137, 0.25);
+
+    stroke-width: 2;
+
+    stroke-dasharray: 8 12;
+
+    transition:
+        stroke 0.5s ease,
+        stroke-width 0.5s ease;
+}
+
+
+/* Active connection */
+
+.flow-line.active {
+    stroke: #b8d889;
+
+    stroke-width: 3;
+
+    filter:
+        drop-shadow(
+            0 0 8px
+            rgba(184, 216, 137, 0.8)
+        );
+
+    animation: dataFlow 1.2s linear infinite;
+}
+
+
+@keyframes dataFlow {
+
+    to {
+        stroke-dashoffset: -40;
+    }
+
+}
+
+
+/* ==================================================
+   CENTRAL SMART IRRIGATION CORE
+================================================== */
+
+.smart-core {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 190px;
+    height: 190px;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 10;
+}
+
+
+/* Outer rings */
+
+.core-ring {
+    position: absolute;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(184,216,137,0.25);
+}
+
+
+.ring-one {
+    inset: 0;
+
+    animation:
+        coreRotate 15s linear infinite;
+}
+
+
+.ring-two {
+    inset: 15px;
+
+    border-style: dashed;
+
+    animation:
+        coreRotateReverse 12s linear infinite;
+}
+
+
+/* Core itself */
+
+.core-content {
+
+    width: 125px;
+    height: 125px;
+
+    border-radius: 50%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle,
+            #315c3c,
+            #193d2c
+        );
+
+    border: 2px solid rgba(184,216,137,0.45);
+
+    box-shadow:
+        0 0 25px rgba(184,216,137,0.1);
+
+    transition:
+        box-shadow 0.8s ease,
+        transform 0.8s ease;
+}
+
+
+.core-label {
+
+    font-size: 11px;
+
+    letter-spacing: 3px;
+
+    color: #b8d889;
+}
+
+
+.core-content strong {
+
+    margin-top: 5px;
+
+    font-family: Georgia, serif;
+
+    font-size: 16px;
+
+    line-height: 1.05;
+
+    color: white;
+}
+
+
+.core-status {
+
+    margin-top: 8px;
+
+    font-size: 7px;
+
+    letter-spacing: 1.5px;
+
+    opacity: 0.55;
+}
+
+
+/* Activated core */
+
+.smart-core.active .core-content {
+
+    transform: scale(1.08);
+
+    box-shadow:
+        0 0 25px rgba(184,216,137,0.45),
+        0 0 70px rgba(184,216,137,0.2);
+}
+
+
+.smart-core.active .core-ring {
+
+    border-color:
+        rgba(184,216,137,0.65);
+}
+
+
+@keyframes coreRotate {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+@keyframes coreRotateReverse {
+
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+
+}
+
+
+/* ==================================================
+   STATUS BAR
+================================================== */
+
+.animation-status {
+
+    position: absolute;
+
+    bottom: 20px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 14px;
+
+    border-radius: 30px;
+
+    background: rgba(0,0,0,0.2);
+
+    color: rgba(255,255,255,0.7);
+
+    font-size: 10px;
+
+    letter-spacing: 1px;
+
+    z-index: 20;
+}
+
+
+.status-dot {
+
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #b8d889;
+
+    box-shadow:
+        0 0 10px #b8d889;
+
+    animation: statusPulse 1.5s infinite;
+}
+
+
+@keyframes statusPulse {
+
+    0%, 100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 768px) {
+
+    .solution-visual {
+        min-height: 480px;
+    }
+
+    .irrigation-animation {
+        height: 480px;
+    }
+
+    .data-node {
+        min-width: 130px;
+        padding: 8px 10px;
+    }
+
+    .node-text strong {
+        font-size: 11px;
+    }
+
+    .node-text span {
+        font-size: 8px;
+    }
+
+    .node-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .node-soil,
+    .node-weather {
+        top: 45px;
+    }
+
+    .node-tank,
+    .node-remote {
+        bottom: 55px;
+    }
+
+    .smart-core {
+        width: 155px;
+        height: 155px;
+    }
+
+    .core-content {
+        width: 105px;
+        height: 105px;
+    }
+
+    .core-content strong {
+        font-size: 13px;
+    }
+
+}
+
+
+/* =====================================================
+   DATA CIRCLES
+===================================================== */
+
+.visual-circle {
+
+    position: absolute;
+
+    border: 1px solid rgba(145,220,69,0.25);
+
+    border-radius: 50%;
+
+}
+
+
+.circle-1 {
+
+    width: 220px;
+
+    height: 220px;
+
+}
+
+
+.circle-2 {
+
+    width: 350px;
+
+    height: 350px;
+
+}
+
+
+.circle-3 {
+
+    width: 480px;
+
+    height: 480px;
+
+}
+
+
+
+/* =====================================================
+   CENTRE
+===================================================== */
+
+.visual-centre {
+
+    width: 155px;
+
+    height: 155px;
+
+    border-radius: 50%;
+
+    background: rgba(145,220,69,0.15);
+
+    border: 1px solid rgba(145,220,69,0.6);
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    position: relative;
+
+    z-index: 3;
+
+}
+
+
+.visual-centre span {
+
+    color: #91dc45;
+
+    font-size: 13px;
+
+    letter-spacing: 3px;
+
+    font-weight: bold;
+
+    margin-bottom: 8px;
+
+}
+
+
+.visual-centre strong {
+
+    color: white;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 18px;
+
+    line-height: 1.1;
+
+}
+
+
+
+/* =====================================================
+   DATA LABELS
+===================================================== */
+
+.data-label {
+
+    position: absolute;
+
+    background: rgba(20,58,24,0.9);
+
+    border: 1px solid rgba(145,220,69,0.35);
+
+    border-radius: 30px;
+
+    padding: 10px 15px;
+
+    color: #e7eadf;
+
+    font-size: 12px;
+
+    backdrop-filter: blur(5px);
+
+    z-index: 5;
+
+}
+
+
+.data-label span {
+
+    color: #91dc45;
+
+    margin-right: 6px;
+
+}
+
+
+.soil {
+
+    top: 20%;
+
+    left: 8%;
+
+}
+
+
+.weather {
+
+    top: 16%;
+
+    right: 8%;
+
+}
+
+
+.water {
+
+    bottom: 20%;
+
+    left: 8%;
+
+}
+
+
+.remote {
+
+    bottom: 17%;
+
+    right: 7%;
+
+}
+
+
+
+/* =====================================================
+   SOLUTION DESCRIPTION
+===================================================== */
+
+.solution-description {
+
+    max-width: 540px;
+
+}
+
+
+.solution-number {
+
+    color: #70aa36;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    margin-bottom: 15px;
+
+}
+
+
+.solution-description h3 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: #173c1d;
+
+    font-size: 45px;
+
+    line-height: 1.05;
+
+    margin-bottom: 25px;
+
+}
+
+
+.solution-description > p {
+
+    color: #596254;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+    margin-bottom: 18px;
+
+}
+
+
+
+/* =====================================================
+   PROCESS
+===================================================== */
+
+.process {
+
+    margin-top: 35px;
+
+    border-top: 1px solid #d7dccd;
+
+}
+
+
+.process-step {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 17px 0;
+
+    border-bottom: 1px solid #d7dccd;
+
+}
+
+
+.process-step > span {
+
+    width: 35px;
+
+    height: 35px;
+
+    border-radius: 50%;
+
+    background: #dcebc9;
+
+    color: #397325;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    flex-shrink: 0;
+
+}
+
+
+.process-step strong {
+
+    color: #173c1d;
+
+    font-size: 15px;
+
+}
+
+
+.process-step p {
+
+    color: #737b6f;
+
+    font-size: 13px;
+
+    margin-top: 3px;
+
+}
+
+
+
+/* =====================================================
+   DATA SECTION
+===================================================== */
+
+.data-section {
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+}
+
+
+.data-heading {
+
+    margin-bottom: 35px;
+
+}
+
+
+.data-heading h3 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: #173c1d;
+
+    font-size: 35px;
+
+    max-width: 650px;
+
+}
+
+
+
+/* =====================================================
+   RESPONSIVE MAIN SOLUTION
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .main-solution {
+
+        grid-template-columns: 1fr;
+
+        gap: 50px;
+
+    }
+
+
+    .solution-visual {
+
+        min-height: 400px;
+
+    }
+
+
+    .solution-visual-content {
+
+        height: 400px;
+
+    }
+
+
+    .circle-3 {
+
+        width: 380px;
+
+        height: 380px;
+
+    }
+
+
+    .circle-2 {
+
+        width: 280px;
+
+        height: 280px;
+
+    }
+
+
+    .circle-1 {
+
+        width: 180px;
+
+        height: 180px;
+
+    }
+
+
+    .solution-description h3 {
+
+        font-size: 36px;
+
+    }
+
+
+    .data-heading h3 {
+
+        font-size: 30px;
+
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .data-label {
+
+        font-size: 10px;
+
+        padding: 8px 10px;
+
+    }
+
+
+    .soil {
+
+        left: 4%;
+
+    }
+
+
+    .weather {
+
+        right: 4%;
+
+    }
+
+
+    .water {
+
+        left: 4%;
+
+    }
+
+
+    .remote {
+
+        right: 4%;
+
+    }
+
+}
+
+
+/* =====================================================
+   CESIUM SECTION
+===================================================== */
+
+.cesium-section {
+
+    min-height: 600px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 100px 8%;
+
+    background:
+        linear-gradient(
+            rgba(4,45,12,0.86),
+            rgba(4,45,12,0.86)
+        ),
+        url("src/hero-farmland.jpg");
+
+    background-size: cover;
+
+    background-position: center;
+
+}
+
+
+.cesium-content {
+
+    max-width: 700px;
+
+}
+
+
+.cesium-content .section-label {
+
+    color: #91dc45;
+
+}
+
+
+.cesium-content h2 {
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    color: white;
+
+    font-size: clamp(45px, 6vw, 75px);
+
+    line-height: 1;
+
+    margin-bottom: 25px;
+
+}
+
+
+.cesium-content > p:not(.section-label) {
+
+    color: #e4e8dd;
+
+    font-size: 19px;
+
+    line-height: 1.7;
+
+    margin-bottom: 35px;
+
+}
+
+
+
+/* =====================================================
+   BLOG
+===================================================== */
+
+.blog-section {
+
+    padding: 110px 8%;
+
+    background: #f8f8f1;
+
+}
+
+
+.blog-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 30px;
+
+}
+
+
+.blog-card {
+
+    background: white;
+
+    border-radius: 25px;
+
+    overflow: hidden;
+
+    box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+
+}
+
+
+.blog-image {
+
+    height: 190px;
+
+    background: #345b2a;
+
+    color: #91dc45;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 25px;
+
+}
+
+
+.blog-content {
+
+    padding: 30px;
+
+}
+
+
+.blog-category {
+
+    color: #68a52f;
+
+    font-size: 11px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 12px;
+
+}
+
+
+.blog-content h3 {
+
+    color: #173c1d;
+
+    font-family: Georgia, "Times New Roman", serif;
+
+    font-size: 25px;
+
+    line-height: 1.2;
+
+    margin-bottom: 15px;
+
+}
+
+
+.blog-content > p:not(.blog-category) {
+
+    color: #697164;
+
+    line-height: 1.6;
+
+    margin-bottom: 20px;
+
+}
+
+
+.blog-content a {
+
+    color: #27631f;
+
+    font-weight: bold;
+
+    text-decoration: none;
+
+}
+
+
+
+/* ==================================================
+   ABOUT US
+================================================== */
+
+.about-section {
+    padding: 120px 8%;
+    background: #f4f0e6;
+    color: #193b2b;
+}
+
+
+/* Intro */
+
+.about-intro {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 80px;
+
+    align-items: end;
+
+    margin-bottom: 70px;
+}
+
+
+.about-heading h2 {
+    max-width: 700px;
+
+    margin: 15px 0 0;
+
+    font-family: Georgia, serif;
+
+    font-size: clamp(48px, 6vw, 82px);
+
+    font-weight: 400;
+
+    line-height: 0.95;
+
+    letter-spacing: -2px;
+}
+
+
+.about-heading h2 span {
+    color: #769b50;
+}
+
+
+.about-intro-text {
+    max-width: 520px;
+}
+
+
+.about-intro-text p {
+    margin: 0;
+
+    font-size: 17px;
+
+    line-height: 1.8;
+
+    color: #536257;
+}
+
+
+/* ==================================================
+   PURPOSE / MISSION / VISION
+================================================== */
+
+.about-pillars {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+}
+
+
+.about-card {
+    position: relative;
+
+    min-height: 390px;
+
+    padding: 35px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: space-between;
+
+    border-radius: 24px;
+
+    background: #e8e4d8;
+
+    border: 1px solid rgba(25, 59, 43, 0.08);
+
+    transition:
+        transform 0.4s ease,
+        background 0.4s ease,
+        box-shadow 0.4s ease;
+}
+
+
+.about-card:hover {
+    transform: translateY(-8px);
+
+    background: #e1e5d7;
+
+    box-shadow:
+        0 20px 45px rgba(25, 59, 43, 0.08);
+}
+
+
+.about-card-number {
+    font-family: Georgia, serif;
+
+    font-size: 14px;
+
+    color: #769b50;
+
+    letter-spacing: 2px;
+}
+
+
+.about-card-content {
+    max-width: 420px;
+}
+
+
+.about-card-label {
+    margin: 0 0 12px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 2px;
+
+    color: #769b50;
+}
+
+
+.about-card h3 {
+    margin: 0 0 18px;
+
+    font-family: Georgia, serif;
+
+    font-size: 32px;
+
+    font-weight: 400;
+
+    line-height: 1.05;
+}
+
+
+.about-card p:last-child {
+    margin: 0;
+
+    font-size: 14px;
+
+    line-height: 1.75;
+
+    color: #5b675e;
+}
+
+
+/* ==================================================
+   OUR VALUES
+================================================== */
+
+.values-section {
+    padding: 120px 8%;
+
+    background: #193b2b;
+
+    color: #f4f0e6;
+}
+
+
+/* Values heading */
+
+.values-intro {
+    display: grid;
+
+    grid-template-columns: 1fr 0.8fr;
+
+    gap: 80px;
+
+    align-items: end;
+
+    margin-bottom: 80px;
+}
+
+
+.values-intro h2 {
+    margin: 15px 0 0;
+
+    font-family: Georgia, serif;
+
+    font-size: clamp(48px, 6vw, 78px);
+
+    font-weight: 400;
+
+    line-height: 0.95;
+
+    letter-spacing: -2px;
+}
+
+
+.values-intro h2 span {
+    color: #b8d889;
+}
+
+
+.values-intro-text {
+    max-width: 500px;
+
+    margin: 0;
+
+    font-size: 16px;
+
+    line-height: 1.8;
+
+    color: rgba(244,240,230,0.7);
+}
+
+
+/* ==================================================
+   VALUES LIST
+================================================== */
+
+.values-list {
+    border-top:
+        1px solid rgba(255,255,255,0.15);
+}
+
+
+.value-item {
+    display: grid;
+
+    grid-template-columns: 80px 0.7fr 1.3fr;
+
+    gap: 40px;
+
+    align-items: start;
+
+    padding: 42px 0;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.15);
+
+    transition:
+        padding-left 0.4s ease,
+        background 0.4s ease;
+}
+
+
+.value-item:hover {
+    padding-left: 15px;
+}
+
+
+/* Number */
+
+.value-number {
+    padding-top: 8px;
+
+    font-family: Georgia, serif;
+
+    font-size: 14px;
+
+    color: #b8d889;
+
+    letter-spacing: 2px;
+}
+
+
+/* Title */
+
+.value-title h3 {
+    margin: 0;
+
+    font-family: Georgia, serif;
+
+    font-size: 34px;
+
+    font-weight: 400;
+}
+
+
+/* Description */
+
+.value-description {
+    max-width: 650px;
+}
+
+
+.value-description p {
+    margin: 0;
+
+    font-size: 15px;
+
+    line-height: 1.8;
+
+    color: rgba(244,240,230,0.72);
+}
+
+
+/* ==================================================
+   VALUE TAGS
+================================================== */
+
+.value-tags {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+
+.value-tags span {
+    padding: 7px 12px;
+
+    border:
+        1px solid rgba(184,216,137,0.25);
+
+    border-radius: 30px;
+
+    font-size: 10px;
+
+    letter-spacing: 0.5px;
+
+    color: #b8d889;
+
+    background:
+        rgba(184,216,137,0.05);
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 900px) {
+
+    .about-intro,
+    .values-intro {
+        grid-template-columns: 1fr;
+
+        gap: 30px;
+    }
+
+
+    .about-pillars {
+        grid-template-columns: 1fr;
+    }
+
+
+    .about-card {
+        min-height: 320px;
+    }
+
+
+    .value-item {
+        grid-template-columns:
+            50px 1fr;
+
+        gap: 20px;
+    }
+
+
+    .value-description {
+        grid-column: 2;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .about-section,
+    .values-section {
+        padding: 80px 6%;
+    }
+
+
+    .about-heading h2,
+    .values-intro h2 {
+        font-size: 48px;
+    }
+
+
+    .about-card {
+        padding: 28px;
+
+        min-height: 300px;
+    }
+
+
+    .about-card h3 {
+        font-size: 28px;
+    }
+
+
+    .value-item {
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+
+        padding: 30px 0;
+    }
+
+
+    .value-description {
+        grid-column: auto;
+    }
+
+
+    .value-title h3 {
+        font-size: 30px;
+    }
+
+}
+
+.values-heading .section-label {
+    color: #b8d88a;
+}
+
+.values-heading h2 {
+    color: #ffffff;
+}
+
+.values-heading h2 span {
+    color: #ffffff;
+}
+
+.values-heading > p:last-child {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1200px) {
+
+    .navbar {
+
+        padding: 0 25px;
+
+        gap: 20px;
+
+    }
+
+
+    .brand-name h2 {
+
+        font-size: 25px;
+
+    }
+
+
+    .logo {
+
+        width: 65px;
+
+        height: 65px;
+
+    }
+
+
+    .nav-links {
+
+        gap: 18px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size: 13px;
+
+    }
+
+
+    .cesium-btn {
+
+        font-size: 13px;
+
+        padding: 12px 16px;
+
+    }
+
+
+    .hero-container {
+
+        gap: 30px;
+
+    }
+
+
+    .hero h1 {
+
+        font-size: 58px;
+
+    }
+
+}
+
+
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .navbar {
+
+        min-height: auto;
+
+        padding: 15px 20px;
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .brand {
+
+        gap: 13px;
+
+    }
+
+
+    .logo {
+
+        width: 60px;
+
+        height: 60px;
+
+    }
+
+
+    .brand-name h2 {
+
+        font-size: 23px;
+
+    }
+
+
+    .brand-name p {
+
+        font-size: 9px;
+
+        letter-spacing: 2px;
+
+    }
+
+
+    .nav-links {
+
+        order: 3;
+
+        width: 100%;
+
+        overflow-x: auto;
+
+        justify-content: flex-start;
+
+        gap: 25px;
+
+        padding-bottom: 5px;
+
+    }
+
+
+    .nav-links a {
+
+        font-size: 13px;
+
+    }
+
+
+    .cesium-btn {
+
+        display: none;
+
+    }
+
+
+    .hero-container {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 50px 22px;
+
+    }
+
+
+    .hero-left {
+
+        width: 100%;
+
+    }
+
+
+    .hero-right {
+
+        width: 100%;
+
+        max-width: none;
+
+        margin-top: 30px;
+
+    }
+
+
+    .hero h1 {
+
+        font-size: 48px;
+
+    }
+
+
+    .hero-buttons {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .primary-btn,
+    .secondary-btn {
+
+        width: 100%;
+
+        justify-content: center;
+
+    }
+
+
+    .solution-block,
+    .solution-block.reverse {
+
+        grid-template-columns: 1fr;
+
+        direction: ltr;
+
+        gap: 40px;
+
+    }
+
+
+    .solution-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .blog-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .solution-text h3 {
+
+        font-size: 35px;
+
+    }
+
+}
+
+
+
+
+/* =====================================================
+   SMALL PHONES
+===================================================== */
+
+@media (max-width: 450px) {
+
+    .brand-name h2 {
+
+        font-size: 19px;
+
+    }
+
+
+    .brand-name p {
+
+        font-size: 7px;
+
+    }
+
+
+    .logo {
+
+        width: 48px;
+
+        height: 48px;
+
+    }
+
+
+    .cesium-btn {
+
+        display: none;
+
+    }
+
+
+    .hero h1 {
+
+        font-size: 41px;
+
+        letter-spacing: -2px;
+
+    }
+
+
+    .eyebrow {
+
+        font-size: 9px;
+
+        letter-spacing: 1.5px;
+
+    }
+
+
+    .info-card {
+
+        min-height: 95px;
+
+    }
+
+}
