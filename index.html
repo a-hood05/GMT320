@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Farm Africa</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+    <!-- ==================================================
+         NAVIGATION
+    =================================================== -->
+
+    <header class="navbar">
+
+        <!-- Logo -->
+        <div class="brand">
+
+            <img
+                src="src/farm-africa-logo.png"
+                alt="Farm Africa Logo"
+                class="logo"
+            >
+
+            <div class="brand-name">
+
+                <h2>FarmTech Africa</h2>
+
+                
+            </div>
+
+        </div>
+
+
+        <!-- Navigation -->
+        <nav class="nav-links">
+
+            <a href="#solutions">Solution</a>
+
+            <!-- <a href="#model">3D Farm Model</a> -->
+
+            <!-- <a href="#irrigation">Smart Irrigation</a> -->
+
+            <a href="#blog">Blog</a>
+
+            <a href="#about">About</a>
+
+            <a href="#values">Values</a>
+
+            
+
+        </nav>
+
+
+        <!-- Cesium button -->
+        <a href="#cesium" class="cesium-btn">
+
+            View 3D Model
+
+            <span>↗</span>
+
+        </a>
+
+    </header>
+
+
+
+    <!-- ==================================================
+         HERO
+    =================================================== -->
+
+    <section class="hero">
+
+        <div class="hero-overlay"></div>
+
+
+        <div class="hero-container">
+
+
+            <!-- LEFT -->
+            <div class="hero-left">
+
+
+                <div class="eyebrow">
+
+                    <span class="leaf">♧</span>
+
+                    CONSERVATION OF AGRICULTURAL LAND
+
+                </div>
+
+
+                <h1>
+
+                    Helping protect
+
+                    <br>
+
+                    the land
+                    <span>that feeds</span>
+
+                    <br>
+
+                    <span>tomorrow.</span>
+
+                </h1>
+
+
+                <p class="hero-description">
+
+                    We use GIS, remote sensing, 3D visualisation and
+                    smart sensor technology to better understand
+                    agricultural landscapes and support smarter
+                    decisions for sustainable farming.
+
+                </p>
+
+
+                <div class="hero-buttons">
+
+
+                    <a href="#solutions" class="primary-btn">
+
+                        Explore solutions
+
+                        <span class="arrow">→</span>
+
+                    </a>
+
+
+                    <a href="#cesium" class="secondary-btn">
+
+                        Explore the 3D Farm
+
+                    </a>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- RIGHT -->
+            <div class="hero-right">
+
+
+                <!-- CARD 1 -->
+
+                <div class="info-card">
+
+                    <div class="card-icon">
+                        ✧
+                    </div>
+
+                    <div class="card-content">
+
+                        <p>3D VISUALISATION</p>
+
+                        <h3>
+                            Interactive UP Farm model
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CARD 2 -->
+
+                <div class="info-card">
+
+                    <div class="card-icon">
+                        ◉
+                    </div>
+
+                    <div class="card-content">
+
+                        <p>SMART IRRIGATION</p>
+
+                        <h3>
+                            Soil moisture &amp; weather data
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CARD 3 -->
+
+                <div class="info-card">
+
+                    <div class="card-icon">
+                        ↗
+                    </div>
+
+                    <div class="card-content">
+
+                        <p>GIS &amp; REMOTE SENSING</p>
+
+                        <h3>
+                            Decision-ready spatial insight
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+     OUR SOLUTION
+=================================================== -->
+
+<section id="solutions" class="solutions-section">
+
+
+    <!-- SECTION INTRO -->
+
+    <div class="section-heading">
+
+        <p class="section-label">
+            OUR SOLUTION
+        </p>
+
+        <h2>
+            Smarter irrigation through connected data.
+        </h2>
+
+        <p>
+            Our smart irrigation system brings together
+            environmental, sensor and spatial data to support
+            better irrigation decisions on the UP Farm.
+        </p>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         MAIN SOLUTION
+    =================================================== -->
+
+    <div class="main-solution">
+
+
+        <!-- LEFT: VISUAL -->
+
+        <div class="solution-visual">
+
+    <!-- Animated data flow -->
+    <div class="irrigation-animation">
+
+        <!-- Background decoration -->
+        <div class="field-grid"></div>
+
+        <!-- Data source: Soil Moisture -->
+        <div class="data-node node-soil" data-node="soil">
+            <div class="node-icon">◉</div>
+            <div class="node-text">
+                <strong>Soil Moisture</strong>
+                <span>Field sensor</span>
+            </div>
+        </div>
+
+        <!-- Data source: Weather -->
+        <div class="data-node node-weather" data-node="weather">
+            <div class="node-icon">☁</div>
+            <div class="node-text">
+                <strong>Weather</strong>
+                <span>Live conditions</span>
+            </div>
+        </div>
+
+        <!-- Data source: Tank Level -->
+        <div class="data-node node-tank" data-node="tank">
+            <div class="node-icon">▣</div>
+            <div class="node-text">
+                <strong>Tank Level</strong>
+                <span>Water availability</span>
+            </div>
+        </div>
+
+        <!-- Data source: Remote Sensing -->
+        <div class="data-node node-remote" data-node="remote">
+            <div class="node-icon">◈</div>
+            <div class="node-text">
+                <strong>Remote Sensing</strong>
+                <span>NDVI / NDRE</span>
+            </div>
+        </div>
+
+
+        <!-- Animated connection lines -->
+        <svg class="data-lines" viewBox="0 0 800 550"
+             preserveAspectRatio="none">
+
+            <path class="flow-line line-soil"
+                  d="M 130 105 C 250 120, 300 220, 400 275" />
+
+            <path class="flow-line line-weather"
+                  d="M 670 105 C 550 120, 500 220, 400 275" />
+
+            <path class="flow-line line-tank"
+                  d="M 130 445 C 250 430, 300 330, 400 275" />
+
+            <path class="flow-line line-remote"
+                  d="M 670 445 C 550 430, 500 330, 400 275" />
+
+        </svg>
+
+
+        <!-- Central GIS Smart Irrigation system -->
+        <div class="smart-core">
+
+            <div class="core-ring ring-one"></div>
+            <div class="core-ring ring-two"></div>
+
+            <div class="core-content">
+                <span class="core-label">GIS</span>
+
+                <strong>
+                    SMART<br>
+                    IRRIGATION
+                </strong>
+
+                <small class="core-status">
+                    WAITING FOR DATA
+                </small>
+            </div>
+
+        </div>
+
+
+        <!-- Status message -->
+        <div class="animation-status">
+            <span class="status-dot"></span>
+            <span id="irrigation-status">Collecting data...</span>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+        <!-- RIGHT: TEXT -->
+
+        <div class="solution-description">
+
+            <p class="solution-number">
+                 
+            </p>
+
+            <h3>
+                From data to irrigation decisions.
+            </h3>
+
+            <p>
+                The smart irrigation system combines multiple
+                sources of information about the farm to
+                determine irrigation needs.
+            </p>
+
+            <p>
+                Soil moisture data provides information about
+                the current conditions in the soil, while
+                weather data provides environmental conditions
+                and forecasts. Water-level sensors monitor
+                available water in storage tanks.
+            </p>
+
+            <p>
+                These datasets are brought together through
+                an algorithm that analyses the conditions and
+                supports a decision on whether irrigation is
+                required.
+            </p>
+
+
+            <div class="process">
+
+                <div class="process-step">
+
+                    <span>01</span>
+
+                    <div>
+
+                        <strong>
+                            Collect
+                        </strong>
+
+                        <p>
+                            Sensor, weather and spatial data
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="process-step">
+
+                    <span>02</span>
+
+                    <div>
+
+                        <strong>
+                            Analyse
+                        </strong>
+
+                        <p>
+                            Algorithm processes the conditions
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="process-step">
+
+                    <span>03</span>
+
+                    <div>
+
+                        <strong>
+                            Decide
+                        </strong>
+
+                        <p>
+                            Identify irrigation requirements
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="process-step">
+
+                    <span>04</span>
+
+                    <div>
+
+                        <strong>
+                            Visualise
+                        </strong>
+
+                        <p>
+                            Display results on the 3D farm
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         DATA SOURCES
+    =================================================== -->
+
+    <div class="data-section">
+
+        <div class="data-heading">
+
+            <p class="section-label">
+                DATA &amp; REMOTE SENSING
+            </p>
+
+            <h3>
+                Multiple data sources. One connected system.
+            </h3>
+
+        </div>
+
+
+        <div class="solution-grid">
+
+
+            <!-- REMOTE SENSING -->
+
+            <div class="small-solution">
+
+                <span class="small-icon">
+                    📡
+                </span>
+
+                <h3>
+                    Remote sensing
+                </h3>
+
+                <p>
+                    Satellite and drone imagery provide
+                    information about vegetation and crop
+                    conditions through products such as
+                    NDVI and NDRE.
+                </p>
+
+            </div>
+
+
+
+            <!-- FIELD SENSORS -->
+
+            <div class="small-solution">
+
+                <span class="small-icon">
+                    📶
+                </span>
+
+                <h3>
+                    Field sensors
+                </h3>
+
+                <p>
+                    Soil-moisture sensors, weather stations
+                    and water-level sensors provide real-time
+                    information about conditions on the farm.
+                </p>
+
+            </div>
+
+
+
+            <!-- SPATIAL ANALYSIS -->
+
+            <div class="small-solution">
+
+                <span class="small-icon">
+                    🗺️
+                </span>
+
+                <h3>
+                    Spatial analysis
+                </h3>
+
+                <p>
+                    GIS combines the different datasets with
+                    farm boundaries, infrastructure and
+                    terrain to provide spatial context for
+                    irrigation decisions.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+       
+
+
+
+
+
+
+    <!-- ==================================================
+         CESIUM
+    =================================================== -->
+
+    <section id="cesium" class="cesium-section">
+
+
+        <div class="cesium-content">
+
+            <p class="section-label">
+                INTERACTIVE DIGITAL TWIN
+            </p>
+
+            <h2>
+                Explore the UP Farm in 3D.
+            </h2>
+
+            <p>
+                Explore our interactive Cesium web application
+                and discover the University of Pretoria Farm
+                through a three-dimensional digital environment.
+            </p>
+
+            <a href="#" class="primary-btn">
+
+                Open Cesium Model
+
+                <span class="arrow">↗</span>
+
+            </a>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- ==================================================
+         BLOG
+    =================================================== -->
+
+    <section id="blog" class="blog-section">
+
+
+        <div class="section-heading">
+
+            <p class="section-label">
+                FARM AFRICA BLOG
+            </p>
+
+            <h2>
+                Geospatial insights from the field.
+            </h2>
+
+            <p>
+                Follow our work, discoveries and ideas around
+                GIS, remote sensing, smart agriculture and
+                sustainable water management.
+            </p>
+
+        </div>
+
+
+
+    </section>
+
+
+
+    <!-- ==================================================
+     ABOUT US
+=================================================== -->
+
+<section id="about" class="about-section">
+
+   <!-- SECTION INTRO -->
+
+<div class="section-heading">
+
+    <p class="section-label">
+        ABOUT US
+    </p>
+
+    <h2>
+        Geospatial technology for the land.
+    </h2>
+
+    <p>
+        We use geospatial science, environmental data and
+        innovative technology to understand agricultural
+        landscapes, support better decisions and build a
+        more sustainable future.
+    </p>
+
+</div>
+
+
+    <!-- Purpose / Mission / Vision -->
+
+    <div class="about-pillars">
+
+        <!-- PURPOSE -->
+
+        <article class="about-card">
+
+            <div class="about-card-number">
+                01
+            </div>
+
+            <div class="about-card-content">
+
+                <p class="about-card-label">
+                    PURPOSE
+                </p>
+
+                <h3>
+                    Protect the land.
+                </h3>
+
+                <p>
+                    To use geospatial technology to protect
+                    agricultural land, improve farming decisions,
+                    and strengthen food security through
+                    sustainable land management.
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- MISSION -->
+
+        <article class="about-card">
+
+            <div class="about-card-number">
+                02
+            </div>
+
+            <div class="about-card-content">
+
+                <p class="about-card-label">
+                    MISSION
+                </p>
+
+                <h3>
+                    Connect data with decisions.
+                </h3>
+
+                <p>
+                    We provide innovative GIS and remote sensing
+                    solutions that help farmers, conservationists,
+                    and decision-makers protect agricultural
+                    landscapes, optimise production, and conserve
+                    natural resources for future generations.
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- VISION -->
+
+        <article class="about-card">
+
+            <div class="about-card-number">
+                03
+            </div>
+
+            <div class="about-card-content">
+
+                <p class="about-card-label">
+                    VISION
+                </p>
+
+                <h3>
+                    A more sustainable future.
+                </h3>
+
+                <p>
+                    A future where every agricultural decision is
+                    informed by accurate spatial data, creating
+                    productive farms, resilient ecosystems, and
+                    lasting food security.
+                </p>
+
+            </div>
+
+        </article>
+
+    </div>
+
+</section>
+
+
+<!-- ==================================================
+     OUR VALUES
+=================================================== -->
+
+<section id="values" class="values-section">
+
+    <div class="section-heading values-heading">
+        <p class="section-label">OUR VALUES</p>
+
+        <h2>
+            What guides<br>
+            <span>our work.</span>
+        </h2>
+
+        <p>
+            We are guided by innovation, collaboration, excellence,
+            stewardship, and integrity in everything we do.
+        </p>
+    </div>
+
+    <!-- values list stays below -->
+
+
+    <div class="values-list">
+
+
+        <!-- VALUE 01 -->
+
+        <article class="value-item">
+
+            <div class="value-number">
+                01
+            </div>
+
+            <div class="value-title">
+                <h3>Innovation</h3>
+            </div>
+
+            <div class="value-description">
+
+                <p>
+                    We embrace new technologies and continuously
+                    improve our methods to deliver smarter, more
+                    effective GIS solutions for agriculture and
+                    conservation.
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- VALUE 02 -->
+
+        <article class="value-item">
+
+            <div class="value-number">
+                02
+            </div>
+
+            <div class="value-title">
+                <h3>Collaboration</h3>
+            </div>
+
+            <div class="value-description">
+
+                <p>
+                    We believe better decisions come from working
+                    together. We collaborate with farmers,
+                    governments and non-profit organisations,
+                    because data does not always tell the entire
+                    story.
+                </p>
+
+            </div>
+
+        </article>
+
+
+        <!-- VALUE 03 -->
+
+        <article class="value-item">
+
+            <div class="value-number">
+                03
+            </div>
+
+            <div class="value-title">
+                <h3>Excellence</h3>
+            </div>
+
+            <div class="value-description">
+
+                <p>
+                    We are committed to delivering accurate
+                    spatial data, high-quality analysis, and
+                    professional service that our clients can
+                    rely on.
+                </p>
+
+                <div class="value-tags">
+
+                    <span>Accurate analysis</span>
+                    <span>Quality maps</span>
+                    <span>Practical recommendations</span>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- VALUE 04 -->
+
+        <article class="value-item">
+
+            <div class="value-number">
+                04
+            </div>
+
+            <div class="value-title">
+                <h3>Stewardship</h3>
+            </div>
+
+            <div class="value-description">
+
+                <p>
+                    We believe agricultural land should be cared
+                    for so future generations can continue to
+                    benefit from it.
+                </p>
+
+                <div class="value-tags">
+
+                    <span>Biodiversity protection</span>
+                    <span>Conservation-minded decisions</span>
+
+                </div>
+
+            </div>
+
+        </article>
+
+
+        <!-- VALUE 05 -->
+
+        <article class="value-item">
+
+            <div class="value-number">
+                05
+            </div>
+
+            <div class="value-title">
+                <h3>Integrity</h3>
+            </div>
+
+            <div class="value-description">
+
+                <p>
+                    We act with honesty, transparency, and
+                    accountability, ensuring our data, reporting,
+                    and recommendations are ethical and
+                    trustworthy.
+                </p>
+
+            </div>
+
+        </article>
+
+
+    </div>
+
+</section>
+
+
+
+    <!-- ==================================================
+         CONTACT
+    =================================================== -->
+
+     <!-- ==================================================
+    <section id="contact" class="content-section">
+
+        <p class="section-label">
+            CONTACT
+        </p>
+
+        <h2>
+            Let's work with the land.
+        </h2>
+
+        <p>
+            Interested in our geospatial, 3D modelling or
+            smart agriculture solutions?
+        </p>
+
+    </section>
+     =================================================== -->
+
+    <script>
+
+    const nodes = [
+        {
+            node: document.querySelector(".node-soil"),
+            line: document.querySelector(".line-soil"),
+            name: "Soil moisture data received"
+        },
+        {
+            node: document.querySelector(".node-weather"),
+            line: document.querySelector(".line-weather"),
+            name: "Weather data received"
+        },
+        {
+            node: document.querySelector(".node-tank"),
+            line: document.querySelector(".line-tank"),
+            name: "Tank level data received"
+        },
+        {
+            node: document.querySelector(".node-remote"),
+            line: document.querySelector(".line-remote"),
+            name: "Remote sensing data received"
+        }
+    ];
+
+    const core = document.querySelector(".smart-core");
+    const status = document.querySelector("#irrigation-status");
+    const coreStatus = document.querySelector(".core-status");
+
+    let current = 0;
+
+
+    function resetAnimation() {
+
+        nodes.forEach(item => {
+            item.node.classList.remove("active");
+            item.line.classList.remove("active");
+        });
+
+        core.classList.remove("active");
+
+        coreStatus.textContent = "WAITING FOR DATA";
+
+    }
+
+
+    function animateNode() {
+
+        const item = nodes[current];
+
+        item.node.classList.add("active");
+
+        status.textContent = item.name;
+
+
+        /* Start sending data toward the centre */
+
+        setTimeout(() => {
+
+            item.line.classList.add("active");
+
+        }, 500);
+
+
+        /* Move to next data source */
+
+        setTimeout(() => {
+
+            current++;
+
+            if (current < nodes.length) {
+
+                animateNode();
+
+            } else {
+
+                activateSystem();
+
+            }
+
+        }, 2200);
+
+    }
+
+
+    function activateSystem() {
+
+        status.textContent = "Analysing connected data...";
+
+        coreStatus.textContent = "ANALYSING DATA";
+
+        core.classList.add("active");
+
+
+        setTimeout(() => {
+
+            status.textContent =
+                "GIS smart irrigation decision ready";
+
+            coreStatus.textContent =
+                "DECISION READY";
+
+        }, 1800);
+
+
+        setTimeout(() => {
+
+            resetAnimation();
+
+            current = 0;
+
+            status.textContent =
+                "Collecting data...";
+
+            setTimeout(animateNode, 800);
+
+        }, 4000);
+
+    }
+
+
+    /* Start animation */
+
+    animateNode();
+
+</script>
+</body>
+
+</html>
