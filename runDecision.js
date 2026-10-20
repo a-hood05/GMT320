@@ -15,3 +15,8 @@ const decision = makeIrrigationDecision({
 console.log(decision.irrigationStatus, "|", decision.recommendedWaterSource);
 console.log(decision.irrigationReason);
 console.log(decision.waterSourceReason);
+
+console.log("\nNext 12 hours of forecast:");
+forecast.slice(0, 12).forEach(h =>
+    console.log(h.time.toLocaleString(), "|", h.precipitation, "mm |", h.probability, "%")
+);
