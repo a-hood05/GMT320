@@ -1,4 +1,4 @@
-// Step 1: Create Terrain View 
+// Step 1: Create Terrain View OZZY
 Cesium.Ion.defaultAccessToken = 
 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2NjgyODg4Yy05YTQ2LTQ0MzUtYWZhNC0xMzVmN2Y5MDQ2NGQiLCJpZCI6NDY3MjY4LCJpc3MiOiJodHRwczovL2FwaS5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3ODY1NTA3MDd9.edF695I1YC6XrJnWxQu4MM-tIul7HmSdsa7VPfABWTE'
 
