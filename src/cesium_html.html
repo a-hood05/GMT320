@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FarmTech Africa - UP Farm 3D Map</title>
+
+  <!-- CesiumJS library (loaded from the internet) -->
+   <!-- Model credits (required by the CC-BY-4.0 licence) -->
+<div id="credits">
+  Tree model: <a href="https://sketchfab.com/3d-models/maple-tree-4b27adcf92f644bdabf8ecc6c5bef399" target="_blank">"Maple tree"</a>
+  by <a href="https://sketchfab.com/atrodler" target="_blank">atrodler</a>,
+  licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY-4.0</a>
+</div>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.123/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.123/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+
+  <style>
+    html, body { margin: 0; height: 100%; font-family: sans-serif; }
+    #cesiumContainer { width: 100%; height: 100%; }   /* map fills the screen */
+
+    /* Floating control panel */
+    #panel {
+      position: absolute; top: 10px; left: 10px; z-index: 10;
+      background: rgba(20, 20, 20, 0.85); color: white;
+      padding: 12px 14px; border-radius: 8px; font-size: 14px;
+    }
+    #panel h3 { margin: 0 0 8px; font-size: 16px; }
+    #panel label { display: block; margin: 4px 0; cursor: pointer; }
+    #panel button { margin-top: 8px; padding: 4px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <!-- The 3D map goes here -->
+  <div id="cesiumContainer"></div>
+
+  <!-- Control panel: ids must be "toggle-" + the layer key used in main.js -->
+  <div id="panel">
+    <h3>FarmTech Africa</h3>
+    <label><input type="checkbox" id="toggle-aoi"        checked> Farm boundary</label>
+    <label><input type="checkbox" id="toggle-buildings"  checked> Buildings</label>
+    <label><input type="checkbox" id="toggle-roads"      checked> Roads</label>
+    <label><input type="checkbox" id="toggle-irrigation" checked> Irrigation</label>
+    <label><input type="checkbox" id="toggle-trees"      checked> Trees</label>
+    <label><input type="checkbox" id="toggle-tanks"      checked> Rainwater tanks</label>
+    <label><input type="checkbox" id="toggle-sensors"    checked> Sensors</label>
+    <button id="btn-zoom">Zoom to farm</button>
+  </div>
+
+  <!-- Your code (must come AFTER the Cesium library and the HTML above) -->
+  <script src="main_cesium.js"></script>
+</body>
+</html>
