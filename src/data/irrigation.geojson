@@ -1,0 +1,17 @@
+{
+"type": "FeatureCollection",
+"name": "irrigation",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 1, "id": 1, "row_number": 1 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2574858, -25.7480275 ], [ 28.2574271, -25.7494838 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 2, "id": 2, "row_number": 2 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2573948, -25.7480353 ], [ 28.2573276, -25.7494823 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 3, "id": 3, "row_number": 3 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2572329, -25.7494715 ], [ 28.2572857, -25.748016 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 4, "id": 4, "row_number": 4 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2571302, -25.7494742 ], [ 28.2571886, -25.7480169 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 5, "id": 5, "row_number": 5 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.25709389982492, -25.748017299033108 ], [ 28.2570382, -25.7494752 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 6, "id": 6, "row_number": 6 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2569815, -25.7480109 ], [ 28.2569173, -25.7494749 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 7, "id": 7, "row_number": 7 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2568959, -25.7480137 ], [ 28.2568245, -25.7494609 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 8, "id": 8, "row_number": 8 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2567158, -25.7494572 ], [ 28.2567843, -25.7480142 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 9, "id": 9, "row_number": 9 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2566919, -25.7480115 ], [ 28.2566346, -25.7494607 ] ] ] } },
+{ "type": "Feature", "properties": { "fid": 10, "id": 10, "row_number": 10 }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ 28.2565334, -25.749454 ], [ 28.2565833, -25.7480116 ] ] ] } }
+]
+}
