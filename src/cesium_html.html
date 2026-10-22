@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="style_cesium.css">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FarmTech Africa - UP Farm 3D Map</title>
@@ -31,6 +32,15 @@
   </style>
 </head>
 <body>
+  <div id="mapKey">
+  <div class="keyTitle">MAP KEY</div>
+  <div class="keyRow"><span class="swatch" style="background:#ffff00"></span>Farm boundary only</div>
+  <div class="keyRow"><span class="swatch" style="background:#ffffff"></span>Asphalt road</div>
+  <div class="keyRow"><span class="swatch" style="background:#cd5c5c"></span>Brick road</div>
+  <div class="keyRow"><span class="swatch" style="background:#f4a460"></span>Informal dirt road</div>
+  <div class="keyRow"><span class="swatch" style="background:#d3d3d3"></span>Other road type</div>
+  <div class="keyRow"><span class="swatch" style="background:#00bfff"></span>Irrigation line</div>
+</div>
   <!-- The 3D map goes here -->
   <div id="cesiumContainer"></div>
 
@@ -46,8 +56,35 @@
     <label><input type="checkbox" id="toggle-sensors"    checked> Sensors</label>
     <button id="btn-zoom">Zoom to farm</button>
   </div>
+  <div id="infoBar">
+  <div class="infoCard">
+    <img src="tree-preview.png" alt="Pecan nut tree model">
+    <div>
+      <div class="infoLabel">TREES LAYER</div>
+      <div class="infoTitle">Pecan nut trees</div>
+      <div class="infoSub">Credit: atrodler, CC-BY-4.0</div>
+    </div>
+  </div>
+
+  <div class="infoCard">
+    <img src="tank-preview.png" alt="JoJo rainwater tank model">
+    <div>
+      <div class="infoLabel">RAINWATER TANKS LAYER</div>
+      <div class="infoTitle">JoJo tank</div>
+      <div class="infoSub">Ribbed body, domed lid</div>
+    </div>
+  </div>
+
+  <div class="infoCard">
+    <img src="sensor-preview.png" alt="Sensor model">
+    <div>
+      <div class="infoLabel">SENSORS LAYER</div>
+      <div class="infoTitle">Sensor node</div>
+      <div class="infoSub">Temperature and humidity</div>
+    </div>
+  </div>
+</div>
 
   <!-- Your code (must come AFTER the Cesium library and the HTML above) -->
   <script src="main_cesium.js"></script>
 </body>
-</html>
