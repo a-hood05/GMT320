@@ -1,0 +1,39 @@
+<head>
+    <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+   <link rel="stylesheet" href="./leaflet.css">
+</head>
+
+
+<body>
+    <header>
+        <h1>FarmTech Africa</h1>
+         <p>Interactive 2D Farm Map</p>
+    </header>
+
+    <div id="map">
+    <div id="search-panel">
+        <label for="feature-search">Find a farm feature</label>
+
+        <input
+            type="text"
+            id="feature-search"
+            placeholder="Search sensors, buildings, trees..."
+            autocomplete="off"
+        >
+
+        <div id="search-results" aria-live="polite"></div>
+
+        <button type="button" id="clear-search">
+            Clear search
+        </button>
+    </div>
+</div>
+
+<div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="./leaflet.js"></script>
+</body>
+</html>
