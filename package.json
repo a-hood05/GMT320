@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/server.js",
-    "indices": "node server/make_vegetation_indices.js"
+    "indices": "node server/make_vegetation_indices.js",
+    "dbcheck": "node server/db_check.js"
   },
   "keywords": [],
   "author": "",

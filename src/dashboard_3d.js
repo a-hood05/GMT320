@@ -98,7 +98,10 @@
 
   function showSource(data) {
     const pill = $("sd-source");
-    if (data.source === "postgis") {
+    if (data.source === "none") {
+      pill.className = "source-pill demo";
+      pill.textContent = "● Not linked to the database yet";
+    } else if (data.source === "postgis") {
       pill.className = "source-pill live";
       pill.textContent = `● Live from PostGIS · ${data.table}`;
     } else {

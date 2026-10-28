@@ -1,16 +1,15 @@
 // =====================================================================
-// FARMTECH AFRICA - small API between the dashboard and PostGIS
+// FARMTECH AFRICA - small API between the dashboard and the PostGIS database
 //
 // Browsers can't talk to a database directly, so this server does it:
-//   GET /api/health                       -> is the database connected?
-//   GET /api/sensors/:id/readings?days=7  -> recordings for one sensor
+//   GET /api/health                        -> is the database connected?
+//   GET /api/sensors/:id/readings?days=7   -> recordings for one map sensor
 //
-// It also serves the website, so you can open:
-//   http://localhost:3000                 (website)
-//   http://localhost:3000/src/dashboard.html
+// Which table belongs to which sensor: server/sensor_tables.js
+// Database login: server/.env  (never commit this file)
 //
 // Start it with:   npm run server
-// Settings live in server/.env (copy server/.env.example)
+// It also serves the website: http://localhost:3000/src/dashboard.html
 // =====================================================================
 import express from "express";
 import cors from "cors";
@@ -19,36 +18,46 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { SENSOR_TABLES } from "./sensor_tables.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 dotenv.config({ path: path.join(__dirname, ".env") });
 
-const PORT = Number(process.env.PORT || 3000);
-const TABLE = process.env.READINGS_TABLE || "sensor_readings";
-const SENSOR_COL = process.env.SENSOR_ID_COLUMN || "sensor_id";
-const TIME_COL = process.env.TIME_COLUMN || "recorded_at";
-const DEMO_MODE = (process.env.DEMO_MODE || "auto").toLowerCase();   // auto | true | false
+const env = (...names) => names.map((n) => process.env[n]).find((v) => v !== undefined && v !== "");
+const PORT = Number(env("PORT") || 3000);
+const DEMO_MODE = (env("DEMO_MODE") || "auto").toLowerCase();   // auto | true | false
 const MAX_ROWS = 5000;
 
 // Columns that are never plotted
-const SKIP_COLUMNS = new Set([
-  SENSOR_COL, TIME_COL, "id", "fid", "gid", "ogc_fid",
-  "geom", "the_geom", "geometry", "wkb_geometry"
-]);
+const SKIP_COLUMNS = new Set(["id", "fid", "gid", "ogc_fid", "record", "geom", "the_geom", "geometry", "wkb_geometry"]);
 
-// --- Protect against SQL injection in the table/column names from .env ---
-function ident(name) {
-  if (!/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/.test(name)) {
-    throw new Error(`Invalid table/column name in .env: "${name}"`);
+// Accepts our teammate's names (DB_host ...) or the standard PG names
+export const DB_CONFIG = {
+  host: env("DB_host", "DB_HOST", "PGHOST") || "localhost",
+  port: Number(env("DB_port", "DB_PORT", "PGPORT") || 5432),
+  user: env("DB_user", "DB_USER", "PGUSER"),
+  password: env("DB_password", "DB_PASSWORD", "PGPASSWORD"),
+  database: env("DB_name", "DB_NAME", "PGDATABASE"),
+  max: 5,
+  connectionTimeoutMillis: 8000,
+};
+
+// Safe quoting for table/column names (handles spaces and capitals like "treatment 2_Port1")
+export const q = (name) => '"' + String(name).replace(/"/g, '""') + '"';
+
+// SQL for the time of each row
+export function timeSql(cfg) {
+  if (cfg.timeSql) return cfg.timeSql;
+  if (Array.isArray(cfg.time)) {
+    const [d, t] = cfg.time;
+    return `(${q(d)}::date + ${q(t)}::time)`;
   }
-  return name.split(".").map((part) => `"${part}"`).join(".");
+  return `${q(cfg.time || "time")}::timestamp`;
 }
-const T = ident(TABLE), S = ident(SENSOR_COL), TC = ident(TIME_COL);
 
-// --- Database connection (PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD) ---
-const pool = DEMO_MODE === "true" ? null : new pg.Pool({ max: 5, connectionTimeoutMillis: 4000 });
-pool?.on("error", (err) => console.error("PostGIS pool error:", err.message));
+const pool = DEMO_MODE === "true" ? null : new pg.Pool(DB_CONFIG);
+pool?.on("error", (err) => console.error("Database pool error:", err.message));
 
 const app = express();
 app.use(cors());
@@ -59,138 +68,136 @@ app.use(express.static(ROOT));   // serves index.html, src/, etc.
 // Health check
 // ---------------------------------------------------------------------
 app.get("/api/health", async (req, res) => {
-  if (!pool) return res.json({ database: "demo mode", table: TABLE });
+  if (!pool) return res.json({ database: "demo mode" });
   try {
-    const r = await pool.query(`SELECT count(*)::int AS n FROM ${T}`);
-    res.json({ database: "connected", table: TABLE, rows: r.rows[0].n });
+    await pool.query("SELECT 1");
+    res.json({ database: "connected", name: DB_CONFIG.database, linkedSensors: Object.keys(SENSOR_TABLES) });
   } catch (err) {
-    res.status(500).json({ database: "error", table: TABLE, error: err.message });
+    res.status(500).json({ database: "error", error: err.message });
   }
 });
 
 
 // ---------------------------------------------------------------------
-// Recordings for one sensor
-// ?days=1|7|30|all  -> period, counted back from that sensor's LATEST
-//                      recording (so older downloaded data still shows)
+// Recordings for one map sensor
+// ?days=1|7|30|all  -> counted back from that sensor's LATEST recording
 // ---------------------------------------------------------------------
 app.get("/api/sensors/:id/readings", async (req, res) => {
   const sensorId = String(req.params.id);
   const days = req.query.days === "all" ? null : Math.min(Math.max(Number(req.query.days) || 7, 1), 3650);
+  const cfg = SENSOR_TABLES[sensorId];
 
+  if (!cfg) {
+    return res.json({ source: "none", sensor_id: sensorId, columns: [], rows: [],
+                      message: `Sensor ${sensorId} isn't linked to a database table yet.` });
+  }
   if (!pool) return res.json(demoReadings(sensorId, days, "DEMO_MODE=true in server/.env"));
 
   try {
-    const params = [sensorId];
-    let where = `${S}::text = $1`;
+    const T = q(cfg.table), TS = timeSql(cfg);
+    const params = [];
+    let where = `${TS} IS NOT NULL`;
     if (days) {
       params.push(days);
-      where += ` AND ${TC} >= (SELECT max(${TC}) FROM ${T} WHERE ${S}::text = $1) - make_interval(days => $2::int)`;
+      where += ` AND ${TS} >= (SELECT max(${TS}) FROM ${T}) - make_interval(days => $1::int)`;
     }
     const sql = `SELECT * FROM (
-                   SELECT * FROM ${T} WHERE ${where} ORDER BY ${TC} DESC LIMIT ${MAX_ROWS}
-                 ) recent ORDER BY ${TC} ASC`;
+                   SELECT *, ${TS} AS __time FROM ${T} WHERE ${where} ORDER BY __time DESC LIMIT ${MAX_ROWS}
+                 ) recent ORDER BY __time ASC`;
     const result = await pool.query(sql, params);
-    res.json(shapeRows(sensorId, result.rows, result.fields.map((f) => f.name)));
+    res.json(shapeRows(sensorId, cfg, result.rows, result.fields.map((f) => f.name)));
   } catch (err) {
-    console.error(`Query for sensor ${sensorId} failed:`, err.message);
-    if (DEMO_MODE === "auto") {
-      return res.json(demoReadings(sensorId, days, `Database error: ${err.message}`));
-    }
+    console.error(`Query for sensor ${sensorId} (${cfg.table}) failed:`, err.message);
+    if (DEMO_MODE === "auto") return res.json(demoReadings(sensorId, days, `Database error: ${err.message}`));
     res.status(500).json({ error: err.message });
   }
 });
 
 
-// Turn database rows into { time, <numeric columns> } for the chart
-function shapeRows(sensorId, rows, fieldNames) {
-  const candidates = fieldNames.filter((f) => !SKIP_COLUMNS.has(f));
+// "12.5", "12,5", "12.5 kPa", 12.5  ->  12.5      ("", "NaN", "error" -> null)
+export function toNumber(v) {
+  if (v === null || v === undefined || typeof v === "boolean" || v instanceof Date) return null;
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  const m = String(v).trim().replace(",", ".").match(/^[-+]?\d*\.?\d+(e[-+]?\d+)?/i);
+  return m ? Number(m[0]) : null;
+}
 
-  // keep only columns where every value is a number (pg returns NUMERIC as text)
+// Turn database rows into { time, <numeric columns> } for the chart
+export function shapeRows(sensorId, cfg, rows, fieldNames) {
+  const timeCols = new Set([].concat(cfg.time || "time"));
+  const candidates = cfg.columns || fieldNames.filter((f) => f !== "__time" && !SKIP_COLUMNS.has(f.toLowerCase()) && !timeCols.has(f));
+
+  // a column is plotted if most of its filled-in values are numbers
+  // (text like "12,5" or "12.5 kPa" is converted; blanks and "NaN" are skipped)
   const numeric = candidates.filter((col) => {
-    const values = rows.map((r) => r[col]).filter((v) => v !== null && v !== undefined && v !== "");
-    return values.length > 0 && values.every((v) => typeof v !== "boolean" && Number.isFinite(Number(v)));
+    const filled = rows.map((r) => r[col])
+      .filter((v) => v !== null && v !== undefined && !/^(|nan|null|none|n\/a|-)$/i.test(String(v).trim()));
+    if (!filled.length || filled.every((v) => v instanceof Date)) return false;
+    const ok = filled.filter((v) => toNumber(v) !== null).length;
+    return ok / filled.length >= 0.8;
   });
 
   return {
     source: "postgis",
-    table: TABLE,
+    table: cfg.table,
     sensor_id: sensorId,
-    time_column: TIME_COL,
     columns: numeric,
     rows: rows.map((r) => {
-      const out = { time: r[TIME_COL] instanceof Date ? r[TIME_COL].toISOString() : r[TIME_COL] };
-      for (const c of numeric) out[c] = r[c] === null ? null : Number(r[c]);
+      const t = r.__time;
+      const out = { time: t instanceof Date ? t.toISOString() : t };
+      for (const c of numeric) out[c] = toNumber(r[c]);
       return out;
     }),
-    message: rows.length ? undefined : `No recordings for sensor ${sensorId} in ${TABLE}.`
+    message: rows.length
+      ? (numeric.length ? undefined : `Found ${rows.length} recordings, but no number columns in ${cfg.table} (columns: ${candidates.join(", ")}).`)
+      : `No recordings in ${cfg.table} for this period.`,
   };
 }
 
 
 // ---------------------------------------------------------------------
-// Demo data - only used when the database is not reachable,
+// Demo data - only used when the database can't be reached,
 // and clearly marked as "Demo data" in the dashboard.
 // ---------------------------------------------------------------------
 let sensorTypes = {};
 try {
   const gj = JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/sensor.geojson"), "utf8"));
   for (const f of gj.features) sensorTypes[String(f.properties.id)] = String(f.properties.sensor_typ || "").trim();
-} catch { /* fine - demo data just won't know the sensor type */ }
+} catch { /* demo data just won't know the sensor type */ }
 
 function demoReadings(sensorId, days, reason) {
   const type = sensorTypes[sensorId] || "";
   const hours = (days || 30) * 24;
-  const step = hours > 24 * 7 ? 3 : 1;       // hourly, or 3-hourly for long periods
+  const step = hours > 24 * 7 ? 3 : 1;
   const seed = [...sensorId].reduce((s, c) => s + c.charCodeAt(0), 0);
   const now = Date.now() - (Date.now() % 3600000);
   const rows = [];
-
   for (let h = hours; h >= 0; h -= step) {
     const t = now - h * 3600000;
-    const hourOfDay = new Date(t).getHours();
-    const daily = Math.sin(((hourOfDay - 9) / 24) * 2 * Math.PI);
     const noise = Math.sin(seed * 12.9898 + h * 78.233) * 0.5;
-
-    if (/water/i.test(type) || /siemens/i.test(type)) {
-      // tank slowly empties, refilled every ~5 days
-      const cycle = (h % 120) / 120;
-      rows.push({ time: new Date(t).toISOString(), water_level_m: +(0.4 + 1.6 * cycle + noise * 0.02).toFixed(3) });
+    if (/water|siemens/i.test(type)) {
+      rows.push({ time: new Date(t).toISOString(), level: +(0.4 + 1.6 * ((h % 120) / 120) + noise * 0.02).toFixed(3) });
     } else {
-      // soil moisture dries out, jumps up after "irrigation" every 3 days
-      const sinceIrrigation = h % 72;
-      const vwc = 32 - sinceIrrigation * 0.12 + noise + (seed % 5);
-      rows.push({
-        time: new Date(t).toISOString(),
-        soil_moisture_vwc: +vwc.toFixed(2),
-        soil_temperature_c: +(19 + 4 * daily + noise).toFixed(2)
-      });
+      rows.push({ time: new Date(t).toISOString(), soil_moisture: +(32 - (h % 72) * 0.12 + noise + (seed % 5)).toFixed(2) });
     }
   }
-
-  return {
-    source: "demo",
-    table: null,
-    sensor_id: sensorId,
-    columns: Object.keys(rows[0]).filter((k) => k !== "time"),
-    rows,
-    message: reason
-  };
+  return { source: "demo", table: null, sensor_id: sensorId, columns: Object.keys(rows[0]).filter((k) => k !== "time"), rows, message: reason };
 }
 
 
-app.listen(PORT, async () => {
-  console.log(`\nFarmTech Africa server running:`);
-  console.log(`  Website:    http://localhost:${PORT}`);
-  console.log(`  Dashboard:  http://localhost:${PORT}/src/dashboard.html\n`);
-  if (!pool) return console.log("DEMO_MODE=true - not connecting to PostGIS.");
-  try {
-    const r = await pool.query(`SELECT count(*)::int AS n FROM ${T}`);
-    console.log(`PostGIS connected: ${process.env.PGDATABASE} / ${TABLE} (${r.rows[0].n} rows)`);
-  } catch (err) {
-    console.warn(`PostGIS NOT connected (${err.message}).`);
-    console.warn(DEMO_MODE === "auto"
-      ? "The dashboard will show demo data until this is fixed - check server/.env"
-      : "Sensor readings will fail until this is fixed - check server/.env");
-  }
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  app.listen(PORT, async () => {
+    console.log(`\nFarmTech Africa server running:`);
+    console.log(`  Website:    http://localhost:${PORT}`);
+    console.log(`  Dashboard:  http://localhost:${PORT}/src/dashboard.html\n`);
+    if (!pool) return console.log("DEMO_MODE=true - not connecting to the database.");
+    try {
+      await pool.query("SELECT 1");
+      console.log(`Database connected: ${DB_CONFIG.database} on ${DB_CONFIG.host}`);
+      console.log(`Sensors linked to tables: ${Object.keys(SENSOR_TABLES).join(", ") || "none yet"}`);
+    } catch (err) {
+      console.warn(`Database NOT connected (${err.message}).`);
+      console.warn("Check server/.env, and that this laptop is on the Tailscale network.");
+    }
+  });
+}
