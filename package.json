@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "dotenv": "^18.0.9",
     "openmeteo": "^1.2.3"
   },
   "devDependencies": {
