@@ -264,9 +264,20 @@ loadLayer("tanks", FILES.tanks, (entity) => {
     entity.polygon.outline = true;
     entity.polygon.outlineColor = Cesium.Color.BLACK;
   } else {
-    // Tank stored as a point
-    stylePoint(entity, Cesium.Color.DODGERBLUE, 14);
-  }
+  // Tank stored as a point -> show a 3D JoJo tank model instead of a dot
+  entity.billboard = undefined;
+  entity.point = undefined;
+  entity.model = {
+    uri: "models/jojo_tank/scene.gltf",
+    scale: 3.0,
+    minimumPixelSize: 80,
+    maximumScale: 200,
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    color: Cesium.Color.DARKGREEN,
+colorBlendMode: Cesium.ColorBlendMode.MIX,
+colorBlendAmount: 0.5,
+  };
+}
 
   // Label it with a name/ID column if you have one (change names if needed)
   const name = getProp(entity, ["Name", "name", "ID", "id", "Tank_ID"], null);
