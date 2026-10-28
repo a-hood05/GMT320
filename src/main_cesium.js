@@ -223,15 +223,11 @@ loadLayer("trees", FILES.trees, (entity) => {
 
   // Simple green dot, shown when the camera is far away (over 300 m)
   entity.point = {
-    pixelSize: 6,
+    pixelSize: 23,
     color: Cesium.Color.FORESTGREEN,
     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     distanceDisplayCondition: new Cesium.DistanceDisplayCondition(300, Number.POSITIVE_INFINITY)
   };
-
-  // TEST: only the first 10 trees get a 3D model.
-  // Once it runs smoothly, change 10 to 168 (or delete this if-line).
-  if (treeCount > 10) return;
 
   // Random rotation so the trees don't all look identical
   const position = entity.position.getValue(Cesium.JulianDate.now());
@@ -242,11 +238,12 @@ loadLayer("trees", FILES.trees, (entity) => {
 
   // The 3D tree, only drawn when the camera is within 300 m
   entity.model = {
-    uri: "models/trees/scene.gltf",     // folder is "trees" (with an s)
-    scale: 1,                           // change if trees look too big or small
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 300)
-  };
+  uri: "models/trees/scene.gltf",
+  scale: 5,
+  minimumPixelSize: 40,
+  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+  distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 10)
+};
 }, { clampToGround: true });
 
 // ---------------------------------------------------------------------
@@ -289,14 +286,23 @@ colorBlendAmount: 0.5,
 // STEP 9 - Sensors (soil moisture, weather, etc.)
 // ---------------------------------------------------------------------
 loadLayer("sensors", FILES.sensors, (entity) => {
-  stylePoint(entity, Cesium.Color.RED, 12);
+  entity.billboard = undefined;
+  entity.point = undefined;
+  entity.model = {
+    uri: "models/sensor/scene.gltf",
+    scale: 1.0,
+    minimumPixelSize: 64,   // makes sure it's at least 64 px wide on screen
+    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    color: Cesium.Color.WHITE,
+  colorBlendMode: Cesium.ColorBlendMode.MIX,
+  colorBlendAmount: 0.7,
+  };
 
   const name = getProp(entity, ["Name", "name", "ID", "id", "Sensor_ID", "type"], null);
   if (name !== null) addLabel(entity, name);
-
+}, { clampToGround: true });
   // Clicking any feature opens Cesium's info box with ALL its attributes.
   // Later you can connect live sensor readings here.
-}, { clampToGround: true });
 
 
 // ---------------------------------------------------------------------
