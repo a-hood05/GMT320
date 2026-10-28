@@ -220,10 +220,11 @@ loadLayer("trees", FILES.trees, (entity) => {
 
   entity.billboard = undefined;   // remove the default pin
   treeCount++;
+  if (treeCount > 20) return;
 
   // Simple green dot, shown when the camera is far away (over 300 m)
   entity.point = {
-    pixelSize: 23,
+    pixelSize: 10,
     color: Cesium.Color.FORESTGREEN,
     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
     distanceDisplayCondition: new Cesium.DistanceDisplayCondition(300, Number.POSITIVE_INFINITY)
@@ -239,10 +240,9 @@ loadLayer("trees", FILES.trees, (entity) => {
   // The 3D tree, only drawn when the camera is within 300 m
   entity.model = {
   uri: "models/trees/scene.gltf",
-  scale: 5,
+  scale: 0.01,
   minimumPixelSize: 40,
   heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-  distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 10)
 };
 }, { clampToGround: true });
 
