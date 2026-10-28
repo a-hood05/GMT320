@@ -4,7 +4,7 @@ import path from "node:path";
 import {fileURLToPath} from 'node:url';
  
 // Set up dotenv to load environment variables from .env file
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Create a new PostgreSQL client using the connection details from environment variables
@@ -21,18 +21,17 @@ const client = new Client({
 });
 
 async function requestTreatment3_1() {
-    const treatment3_1 = await client.query(`SELECT * FROM Treatment 3_port1`);
-    return treatment3_1;
+    return await client.query(`SELECT * FROM "Treatment 3_port1"`);
 }
 
 async function main() {
     await client.connect();
     try {
-        await requestTreatment3_1();
+        const result = await requestTreatment3_1();
+        const treatment3_1 = result.rows;
         console.log(`${new Date().toISOString()} - Query request treatment succeeded `);
+        console.log(treatment3_1); /*Remove when implementing dashboard*/ 
         return treatment3_1;
-    } catch (error) {
-        throw error;
     } finally {
         await client.end();
     }
