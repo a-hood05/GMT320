@@ -12,12 +12,17 @@
 // Run  npm run dbcheck  to see every table and its columns.
 // =====================================================================
 
+// " 9/22/2026" + "13:45:00"  ->  2026-09-22 13:45
+const WATER_TIME = `(to_date(NULLIF(trim("date"), ''), 'MM/DD/YYYY') + NULLIF(trim("loc time"), '')::time)`;
+
 export const SENSOR_TABLES = {
 
   // ---------- Water-level sensors at the JoJo tanks (confirmed) ----------
-  "19": { table: "water_sensors_data", time: ["date", "loc time"], columns: ["level1"] },
-  "20": { table: "water_sensors_data", time: ["date", "loc time"], columns: ["level2"] },
-  "21": { table: "water_sensors_data", time: ["date", "loc time"], columns: ["level1", "level2"] },
+  // The logger stores the date month-first with a leading space (" 9/22/2026"),
+  // so we tell the database exactly how to read it.
+  "19": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level1"] },
+  "20": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level2"] },
+  "21": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level1", "level2"] },
 
   // ---------- Chameleon soil-moisture sensors (serial numbers from the team) ----------
   // NOTE: D967 was given as point 2, but point 2 is a TEROS 21 on the map and

@@ -15,6 +15,11 @@
   // 1. Listen for clicks on sensors
   // ---------------------------------------------------------------
   viewer.selectedEntityChanged.addEventListener((entity) => {
+    // Clicking a soil-profile pillar (dashboard_3d_layers.js) opens its sensor
+    if (entity && entity.sensorEntity) {
+      viewer.selectedEntity = entity.sensorEntity;
+      return;
+    }
     const isSensor = !!(entity && layers.sensors && layers.sensors.entities.contains(entity));
 
     // Sensors get our own panel; every other layer keeps Cesium's info box
@@ -122,13 +127,19 @@
   // 3. Draw: latest values, chart, table
   // ---------------------------------------------------------------
   function drawLatest() {
-    const { rows, columns } = current.data;
+    const { rows, columns, statuses = {} } = current.data;
     const last = rows[rows.length - 1];
-    $("sd-latest").innerHTML = columns.slice(0, 4).map((c) => `
+    // "20 cm value" -> its status column "20 cm status" (Wet / Moist / Dry)
+    const statusOf = (c) => statuses[c.replace(/value/i, "status")] || null;
+    $("sd-latest").innerHTML = columns.slice(0, 4).map((c) => {
+      const st = statusOf(c);
+      return `
       <div class="latest-card">
         <span>${nice(c)}</span>
         <strong>${fmt(last[c])}</strong>
-      </div>`).join("") +
+        ${st ? `<em class="status-badge status-${String(st).toLowerCase()}">${st}</em>` : ""}
+      </div>`;
+    }).join("") +
       `<div class="latest-time">Last recording: ${fmtTime(last.time)}</div>`;
   }
 

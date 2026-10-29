@@ -30,7 +30,8 @@ const DEMO_MODE = (env("DEMO_MODE") || "auto").toLowerCase();   // auto | true |
 const MAX_ROWS = 5000;
 
 // Columns that are never plotted
-const SKIP_COLUMNS = new Set(["id", "fid", "gid", "ogc_fid", "record", "geom", "the_geom", "geometry", "wkb_geometry"]);
+const SKIP_COLUMNS = new Set(["id", "fid", "gid", "ogc_fid", "record", "geom", "the_geom", "geometry", "wkb_geometry",
+                              "battery (v)", "link"]);
 
 // Accepts our teammate's names (DB_host ...) or the standard PG names
 export const DB_CONFIG = {
@@ -40,7 +41,7 @@ export const DB_CONFIG = {
   password: env("DB_password", "DB_PASSWORD", "PGPASSWORD"),
   database: env("DB_name", "DB_NAME", "PGDATABASE"),
   max: 5,
-  connectionTimeoutMillis: 8000,
+  connectionTimeoutMillis: 20000,   // Tailscale can take a few seconds to wake up
 };
 
 // Safe quoting for table/column names (handles spaces and capitals like "treatment 2_Port1")
@@ -75,6 +76,101 @@ app.get("/api/health", async (req, res) => {
   } catch (err) {
     res.status(500).json({ database: "error", error: err.message });
   }
+});
+
+
+// ---------------------------------------------------------------------
+// Latest recording of EVERY linked sensor (used to colour the 3D sensors)
+// -> [{ id, table, time, statuses: {"20 cm status": "Dry"...}, values: {...} }]
+// ---------------------------------------------------------------------
+async function latestOfAllSensors() {
+  return Promise.all(Object.entries(SENSOR_TABLES).map(async ([id, cfg]) => {
+    try {
+      const TS = timeSql(cfg);
+      const r = await pool.query(`SELECT *, ${TS} AS __time FROM ${q(cfg.table)} WHERE ${TS} IS NOT NULL ORDER BY __time DESC LIMIT 1`);
+      if (!r.rows.length) return { id, table: cfg.table, empty: true };
+      const shaped = shapeRows(id, cfg, r.rows, r.fields.map((f) => f.name));
+      return { id, table: cfg.table, time: shaped.rows[0].time, statuses: shaped.statuses, values: shaped.rows[0] };
+    } catch (err) {
+      return { id, table: cfg.table, error: err.message };
+    }
+  }));
+}
+
+app.get("/api/sensors/latest", async (req, res) => {
+  if (!pool) return res.json({ source: "demo", sensors: [] });
+  res.json({ source: "postgis", sensors: await latestOfAllSensors() });
+});
+
+
+// ---------------------------------------------------------------------
+// Everything the irrigation decision needs, in one request:
+//   sensors  - latest Wet/Moist/Dry status of every soil sensor
+//   forecast - rain expected in the next 48 h (weather_forecast_7days)
+//   eto      - latest daily ETo + rainfall (AWS Field Trial Section)
+//   tanks    - latest tank water levels
+// Each part fails on its own, so one missing table never blocks the rest.
+// ---------------------------------------------------------------------
+const FORECAST_TABLE = "weather_forecast_7days";
+const ETO_TABLE = "AWS_Table2_Field_Trial_Section";
+
+// "2026-10-29T13:00", "2026-10-29 13:00", "10/29/2026", "29/10/2026" -> Date
+export function parseDate(text, dayFirst = false) {
+  const t = String(text ?? "").trim();
+  if (!t) return null;
+  let m = t.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
+  m = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})(?:[ T](\d{1,2}):(\d{2}))?/);
+  if (m) {
+    const [a, b] = [+m[1], +m[2]];
+    const [day, month] = dayFirst ? [a, b] : [b, a];
+    return new Date(+m[3], month - 1, day, +(m[4] || 0), +(m[5] || 0));
+  }
+  const d = new Date(t);
+  return isNaN(d) ? null : d;
+}
+
+export function rainNext48h(rows, now = new Date()) {
+  const parsed = rows.map((r) => ({ t: parseDate(r.time), mm: toNumber(r.precipitation), p: toNumber(r.precipitation_probability) }))
+                     .filter((r) => r.t && r.mm !== null).sort((a, b) => a.t - b.t);
+  if (!parsed.length) return null;
+  // use the forecast from "now"; if the table is older than that, use its last 48 h and say so
+  let start = parsed.find((r) => r.t >= now)?.t;
+  const stale = !start;
+  if (stale) start = new Date(parsed[parsed.length - 1].t - 47 * 3600000);
+  const end = new Date(+start + 48 * 3600000);
+  const window = parsed.filter((r) => r.t >= start && r.t < end);
+  return {
+    mm: Math.round(window.reduce((s, r) => s + r.mm, 0) * 10) / 10,
+    maxProbability: window.reduce((m, r) => Math.max(m, r.p ?? 0), 0),
+    from: start.toISOString(), to: end.toISOString(), stale,
+  };
+}
+
+export function latestEto(rows) {
+  // decide whether the dates are day-first: any first number above 12 means DD/MM
+  const dayFirst = rows.some((r) => { const m = String(r.date ?? "").trim().match(/^(\d{1,2})[-/.]/); return m && +m[1] > 12; });
+  const parsed = rows.map((r) => ({ d: parseDate(r.date, dayFirst), eto: toNumber(r["daily eto mm"]), rain: toNumber(r["total rainfall mm"]) }))
+                     .filter((r) => r.d && r.eto !== null).sort((a, b) => a.d - b.d);
+  const last = parsed[parsed.length - 1];
+  return last ? { date: last.d.toISOString(), eto: last.eto, rainfall: last.rain } : null;
+}
+
+app.get("/api/decision-inputs", async (req, res) => {
+  if (!pool) return res.status(503).json({ error: "Database not connected (DEMO_MODE=true)" });
+  const part = async (fn) => { try { return await fn(); } catch (err) { return { error: err.message }; } };
+
+  const [sensors, forecast, eto] = await Promise.all([
+    latestOfAllSensors(),
+    part(async () => rainNext48h((await pool.query(`SELECT * FROM ${q(FORECAST_TABLE)}`)).rows)),
+    part(async () => latestEto((await pool.query(`SELECT * FROM ${q(ETO_TABLE)}`)).rows)),
+  ]);
+  const waterRows = sensors.filter((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data" && s.values);
+  const pick = (k) => waterRows.map((s) => s.values[k]).find((v) => v !== undefined && v !== null) ?? null;
+  const tanks = waterRows.length ? { time: waterRows[0].time, level1: pick("level1"), level2: pick("level2") }
+                                 : { error: sensors.find((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data")?.error || "no tank data" };
+
+  res.json({ source: "postgis", generated: new Date().toISOString(), sensors, forecast, eto, tanks });
 });
 
 
@@ -137,10 +233,15 @@ export function shapeRows(sensorId, cfg, rows, fieldNames) {
     return ok / filled.length >= 0.8;
   });
 
+  // text status columns (e.g. Chameleon "20 cm status": Wet / Moist / Dry) from the latest row
+  const last = rows[rows.length - 1] || {};
+  const statuses = Object.fromEntries(fieldNames.filter((f) => /status/i.test(f)).map((f) => [f, last[f] ?? null]));
+
   return {
     source: "postgis",
     table: cfg.table,
     sensor_id: sensorId,
+    statuses,
     columns: numeric,
     rows: rows.map((r) => {
       const t = r.__time;

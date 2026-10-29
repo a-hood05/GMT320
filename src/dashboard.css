@@ -247,3 +247,53 @@ button { font: inherit; }
   #ndviBar { left: 8px; right: 8px; width: auto; transform: none; }
   #ndviLegend, .side-left, #mapKey { display: none; }
 }
+
+/* ---------- 3D: soil profiles + drone imagery ---------- */
+#panel { max-height: calc(100% - 28px); overflow-y: auto; }
+#panel .panel-sub { margin-top: 14px; }
+.index-switch.small { display: inline-flex; margin-bottom: 8px; }
+.index-switch.small button { padding: 3px 8px; font-size: 11px; }
+.panel-select {
+  width: 100%; background: var(--card); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 8px; font: inherit; font-size: 12px; margin-bottom: 6px;
+}
+#img3d-opacity { width: 100%; accent-color: var(--accent-strong); }
+#mapKey .key-gap { margin-top: 12px; }
+#mapKey .key-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
+#key-img-ramp.reverse { transform: scaleX(-1); }
+.status-badge { display: inline-block; margin-left: 6px; font-style: normal; font-size: 11px; font-weight: 700;
+  padding: 1px 7px; border-radius: 999px; vertical-align: middle; }
+.status-wet   { background: rgba(43,140,190,0.25); color: #7cc4ea; }
+.status-moist { background: rgba(65,171,93,0.25);  color: #8fd199; }
+.status-dry   { background: rgba(230,85,13,0.25);  color: #ff9d6b; }
+
+/* ---------- 3D: irrigation decision card ---------- */
+#mapKey { max-height: calc(100% - 80px); overflow-y: auto; }
+#decisionCard { left: 296px; bottom: 40px; width: 370px; max-height: calc(100% - 110px); overflow-y: auto; padding: 12px 14px; }
+#decisionCard.collapsed #dc-body, #decisionCard.collapsed .dc-surface { display: none; }
+#decisionCard.collapsed #dc-toggle { transform: rotate(-90deg); }
+.dc-head { display: flex; align-items: center; justify-content: space-between; }
+.dc-head h3 { margin: 0; color: var(--accent); }
+.dc-actions button { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
+  width: 26px; height: 26px; cursor: pointer; margin-left: 4px; }
+.dc-surface { font-size: 12px; color: var(--muted); margin: 8px 0 !important; }
+.dc-muted { color: var(--muted); font-size: 12px; margin: 6px 0; }
+.dc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.dc-chip { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--c);
+  background: color-mix(in srgb, var(--c) 18%, transparent); }
+.dc-detail { border-left: 4px solid var(--c); background: var(--card); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; font-size: 12px; }
+.dc-detail strong { font-size: 13px; }
+.dc-detail ul { margin: 6px 0 0; padding-left: 18px; }
+.dc-flag { color: #ffc66b; margin: 6px 0 0; }
+.dc-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.dc-row { display: flex; justify-content: space-between; gap: 6px; font-size: 11px; padding: 4px 8px; cursor: pointer;
+  background: var(--card); color: var(--text); border: 1px solid var(--border); border-left: 4px solid var(--c); border-radius: 6px; text-align: left; }
+.dc-row span:last-child { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dc-row.on { border-color: var(--c); }
+#decisionCard h4 { margin: 12px 0 4px; }
+.dc-inputs { width: 100%; font-size: 11px; border-collapse: collapse; }
+.dc-inputs td { padding: 2px 0; vertical-align: top; }
+.dc-inputs td:first-child { color: var(--muted); width: 96px; }
+.dc-inputs em { color: #ffc66b; font-style: normal; }
+.dc-rules { font-size: 11px; color: var(--muted); margin: 0; }
+@media (max-width: 1000px) { #decisionCard { left: 14px; width: calc(100% - 28px); } }

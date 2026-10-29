@@ -34,6 +34,8 @@ function ensure3D() {
   cesiumPromise = loadScript(CESIUM_BASE + "Cesium.js")
     .then(() => loadScript("main_cesium.js"))     // the existing 3D farm model
     .then(() => loadScript("dashboard_3d.js"))    // sensor click -> PostGIS readings
+    .then(() => loadScript("dashboard_3d_layers.js")) // soil-profile pillars + drone imagery
+    .then(() => loadScript("dashboard_3d_decision.js")) // smart irrigation decision
     .then(() => { loading.style.display = "none"; })
     .catch((err) => {
       console.error(err);
