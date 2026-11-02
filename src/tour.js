@@ -118,13 +118,15 @@
     },
     {
       target: "#mapKey",
+      before: () => { const k = document.getElementById("mapKey"); if (k) k.classList.remove("collapsed"); },
       title: "Soil moisture at a glance",
       text: `Each Chameleon sensor has a <b>pillar of 3 blocks</b>: top = 20 cm deep, middle = 50 cm,
              bottom = 80 cm. Colours come from the sensor's own reading:
              <b style="color:#7cc4ea">Wet</b>, <b style="color:#8fd199">Moist</b>,
              <b style="color:#ff9d6b">Dry</b>.
              <br><br>Note: for Chameleon sensors a <b>low value means wet</b> and a high value means dry
-             (it measures how hard roots must pull to get water).`,
+             (it measures how hard roots must pull to get water).
+             <br><br>Tip: click <b>MAP KEY</b> to fold the key away.`,
     },
     {
       target: "#decisionCard",

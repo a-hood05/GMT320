@@ -272,4 +272,30 @@
     });
     viewer.flyTo(awsRange, { duration: 1.5, offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-50), 0) });
   });
+
+  // -------------------------------------------------------------------
+  // 4. MAP KEY: click the title to fold it away (remembered per browser).
+  //    It also folds itself while Cesium's basemap menu is open.
+  // -------------------------------------------------------------------
+  const key = $("mapKey"), keyBtn = $("mapKeyToggle");
+  const setKey = (collapsed) => {
+    key.classList.toggle("collapsed", collapsed);
+    keyBtn.setAttribute("aria-expanded", String(!collapsed));
+  };
+  try { setKey(localStorage.getItem("farmtech_mapkey_collapsed") === "1"); } catch { /* ignore */ }
+  keyBtn.addEventListener("click", () => {
+    const collapsed = !key.classList.contains("collapsed");
+    setKey(collapsed);
+    try { localStorage.setItem("farmtech_mapkey_collapsed", collapsed ? "1" : "0"); } catch { /* ignore */ }
+  });
+
+  const picker = document.querySelector(".cesium-baseLayerPicker-dropDown");
+  if (picker) {
+    let wasCollapsed = false;
+    new MutationObserver(() => {
+      const open = picker.classList.contains("cesium-baseLayerPicker-dropDown-visible");
+      if (open) { wasCollapsed = key.classList.contains("collapsed"); setKey(true); }
+      else setKey(wasCollapsed);
+    }).observe(picker, { attributes: true, attributeFilter: ["class"] });
+  }
 })();

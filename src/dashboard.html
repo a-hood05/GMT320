@@ -187,7 +187,10 @@
     </div>
 
     <div id="mapKey" class="float-card">
-      <div class="keyTitle">MAP KEY</div>
+      <button id="mapKeyToggle" class="keyTitle key-toggle" aria-expanded="true" title="Show / hide the map key">
+        MAP KEY <span class="key-chevron">▾</span>
+      </button>
+      <div id="mapKeyBody">
       <div class="keyRow"><span class="swatch" style="background:#ffff00"></span>Farm boundary</div>
       <div class="keyRow"><span class="swatch" style="background:#ffffff"></span>Asphalt road</div>
       <div class="keyRow"><span class="swatch" style="background:#cd5c5c"></span>Brick road</div>
@@ -217,6 +220,7 @@
         <div class="keyTitle key-gap" id="key-img-title">NDVI</div>
         <div class="legend-ramp" id="key-img-ramp"></div>
         <div class="legend-labels"><span id="key-img-min"></span><span id="key-img-max"></span></div>
+      </div>
       </div>
     </div>
 
