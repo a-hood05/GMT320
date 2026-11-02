@@ -29,13 +29,14 @@
     </a>
 
     <!-- 2D / 3D switch -->
-    <div class="view-switch" role="tablist" aria-label="Map view">
+    <div class="view-switch" role="tablist" aria-label="Map view" data-tour="view-switch">
       <button id="btn-view-2d" class="active" role="tab">2D Map</button>
       <button id="btn-view-3d" role="tab">3D Farm</button>
     </div>
 
     <div class="topbar-right">
       <span id="coords" class="coords">Move the mouse over the map</span>
+      <button id="btn-tour" class="tour-btn" title="Show the guided tour">? Tour</button>
       <a class="back-link" href="../index.html">← Back to website</a>
     </div>
   </header>
@@ -50,7 +51,7 @@
     <aside id="sidebar2d">
 
       <!-- STAT CARDS -->
-      <div class="stats-grid">
+      <div class="stats-grid" data-tour="stats">
         <div class="stat"><strong id="statBuildings">0</strong><span>Buildings shown</span></div>
         <div class="stat"><strong id="statGutters">0</strong><span>With gutters</span></div>
         <div class="stat"><strong id="statTanks">0</strong><span>Rainwater tanks</span></div>
@@ -62,6 +63,7 @@
       </div>
 
       <!-- BUILDING CONTROLS -->
+      <div data-tour="buildings">
       <h4 class="section-title">Buildings</h4>
       <label class="field">Colour buildings by
         <select id="colourBy">
@@ -80,13 +82,16 @@
         <input type="range" id="heightSlider" min="0" max="20" value="0" />
       </label>
       <label class="check"><input type="checkbox" id="gutterOnly" /> Only buildings with gutters</label>
+      </div>
 
       <!-- SENSOR CONTROLS -->
+      <div data-tour="sensors2d">
       <h4 class="section-title">Sensors</h4>
       <label class="field">Sensor type
         <select id="sensorFilter"><option value="All">All</option></select>
       </label>
       <div id="sensorBars"></div>
+      </div>
 
       <!-- BUTTONS -->
       <div class="btn-row">
@@ -95,7 +100,7 @@
       </div>
 
       <!-- INFO PANEL -->
-      <div class="info-card">
+      <div class="info-card" data-tour="info">
         <div class="info-head">Feature information</div>
         <div id="infoPanel">Click a feature on the map.</div>
       </div>
@@ -269,5 +274,6 @@
   <script src="decision_config.js"></script>
   <script src="dashboard_2d.js"></script>
   <script src="dashboard.js"></script>
+  <script src="tour.js"></script>
 </body>
 </html>

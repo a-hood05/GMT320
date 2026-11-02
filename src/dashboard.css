@@ -298,3 +298,38 @@ button { font: inherit; }
 .dc-rules { font-size: 11px; color: var(--muted); margin: 0; }
 @media (max-width: 1000px) { #decisionCard { left: 14px; width: calc(100% - 28px); } }
 #mapKey .swatch-block { width: 16px; height: 12px; border-radius: 2px; margin: 0 6px; }
+
+/* ---------- Guided tour (tour.js) ---------- */
+.tour-btn {
+  background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px;
+  padding: 4px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.tour-btn:hover { background: var(--accent); color: #0b1a10; }
+.tour-blocker { position: fixed; inset: 0; z-index: 3000; display: none; background: transparent; }
+.tour-blocker.dim { background: rgba(5, 10, 8, 0.65); }
+.tour-spotlight {
+  position: fixed; z-index: 3001; display: none; pointer-events: none; border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(5, 10, 8, 0.65), 0 0 0 3px var(--accent);
+  transition: left .25s ease, top .25s ease, width .25s ease, height .25s ease;
+}
+.tour-pop {
+  position: fixed; z-index: 3002; display: none; width: min(380px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px); overflow-y: auto;
+  background: #141d1a; color: var(--text); border: 1px solid var(--accent); border-radius: 14px;
+  padding: 16px 18px; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5); font-size: 13px; line-height: 1.5;
+}
+.tour-pop.centred { width: min(480px, calc(100vw - 32px)); }
+.tour-pop h3 { margin: 2px 0 8px; font-size: 17px; color: var(--accent); }
+.tour-pop ul, .tour-pop ol { margin: 6px 0 0; padding-left: 20px; }
+.tour-pop li { margin: 3px 0; }
+.tour-count { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; min-height: 14px; }
+.tour-dots { display: flex; gap: 5px; justify-content: center; margin: 14px 0 10px; }
+.tour-dots span { width: 7px; height: 7px; border-radius: 50%; background: #34463f; }
+.tour-dots span.on { background: var(--accent); }
+.tour-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tour-actions button { font: inherit; font-size: 13px; cursor: pointer; border-radius: 8px; padding: 7px 14px; }
+.tour-skip { background: transparent; border: 0; color: var(--muted); padding-left: 0 !important; }
+.tour-skip:hover { color: var(--text); }
+.tour-back { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-right: 6px; }
+.tour-next { background: var(--accent); color: #0b1a10; border: 0; font-weight: 700; }
+@media (max-width: 700px) { .tour-btn { display: none; } }

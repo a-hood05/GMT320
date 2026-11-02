@@ -36,7 +36,10 @@ function ensure3D() {
     .then(() => loadScript("dashboard_3d.js"))    // sensor click -> PostGIS readings
     .then(() => loadScript("dashboard_3d_layers.js")) // soil-profile pillars + drone imagery
     .then(() => loadScript("dashboard_3d_decision.js")) // smart irrigation decision
-    .then(() => { loading.style.display = "none"; })
+    .then(() => {
+      loading.style.display = "none";
+      if (window.startTour3DOnce) window.startTour3DOnce();   // tour.js: first visit to the 3D farm
+    })
     .catch((err) => {
       console.error(err);
       loading.textContent = "The 3D farm could not load. Check your internet connection and refresh.";
