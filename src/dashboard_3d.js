@@ -39,27 +39,38 @@
   }
 
   function openSensor(entity) {
-    current = {
-      id:        getProp(entity, [cfg.SENSOR_ID_FIELD], null),
-      type:      String(getProp(entity, ["sensor_typ", "type"], "Sensor")).trim(),
-      installed: getProp(entity, ["installDat"], null),
-      data:      null
-    };
+    const id = getProp(entity, [cfg.SENSOR_ID_FIELD], null);
+    const type = String(getProp(entity, ["sensor_typ", "type"], "Sensor")).trim();
+    const installed = getProp(entity, ["installDat"], null);
+    openPanel({
+      label: "SENSOR",
+      title: `${type} · #${id}`,
+      meta: installed ? `Installed ${installed}` : "Install date unknown",
+      url: (days) => `${cfg.API_BASE}/api/sensors/${encodeURIComponent(id)}/readings?days=${days}`,
+      entity,
+    });
+  }
 
-    $("sd-title").textContent = `${current.type} · #${current.id}`;
-    $("sd-meta").textContent = current.installed ? `Installed ${current.installed}` : "Install date unknown";
+  // Generic panel - also used by the weather station (dashboard_3d_layers.js)
+  function openPanel({ label, title, meta, url, entity }) {
+    current = { url, data: null };
+    $("sd-title").textContent = title;
+    $("sd-meta").textContent = meta || "";
+    drawer.querySelector(".drawer-label").textContent = label || "SENSOR";
 
     drawer.classList.add("open");
     drawer.setAttribute("aria-hidden", "false");
 
-    // Move the camera in towards the sensor
-    viewer.flyTo(entity, {
-      duration: 1.5,
-      offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-35), 120)
-    });
-
+    // Move the camera in towards the feature
+    if (entity) {
+      viewer.flyTo(entity, {
+        duration: 1.5,
+        offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-35), 120)
+      });
+    }
     loadReadings();
   }
+  window.openReadingsPanel = openPanel;
 
   // ---------------------------------------------------------------
   // 2. Fetch the recordings from the API (server/server.js)
@@ -72,7 +83,7 @@
     $("sd-table").innerHTML = "";
     $("sd-source").textContent = "";
 
-    const url = `${cfg.API_BASE}/api/sensors/${encodeURIComponent(sensor.id)}/readings?days=${days}`;
+    const url = sensor.url(days);
     try {
       const res = await fetch(url);
       const data = await res.json();

@@ -28,6 +28,6 @@ const DECISION_CONFIG = {
   HIGH_ETO_MM: 5,          // daily ETo (AWS) that pushes "monitor" rows to "irrigate" - placeholder
 
   // Step 5 - rainwater tanks
-  TANK_FULL_LEVEL: null,   // tank level reading when FULL (same units as level1/level2) - ask the team
+  TANK_FULL_LEVEL: 100,    // the level sensors report % full (100 = full; can read above 100 when overfilled)
   TANK_LOW_PERCENT: 20,    // below this the decision is flagged "insufficient rainwater"
 };

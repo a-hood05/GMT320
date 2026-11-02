@@ -102,8 +102,10 @@
         fetch(cfg.FILES.irrigation).then((r) => r.json()),
       ]);
     } catch (err) {
-      console.error(err);
-      return setCard("The decision needs the database server. Start it with <code>npm run server</code> and refresh.", true);
+      console.warn("Decision: server not reachable - retrying in 10 s.");
+      clearTimeout(state.retry);
+      state.retry = setTimeout(run, 10000);
+      return setCard("Waiting for the database server… start it with <code>npm run server</code> (retrying every 10 s).", true);
     }
     if (inputs.error) return setCard(`Decision unavailable: ${inputs.error}`, true);
     state.inputs = inputs;
@@ -192,10 +194,11 @@
 
   async function showSurface(on) {
     if (state.surfaceLayer) { viewer.imageryLayers.remove(state.surfaceLayer, true); state.surfaceLayer = null; }
-    if (!on || !state.surface) return;
+    if (!on || !state.surface) { viewer.scene.requestRender(); return; }
     const provider = await Cesium.SingleTileImageryProvider.fromUrl(state.surface.url, { rectangle: state.surface.rect });
     state.surfaceLayer = viewer.imageryLayers.addImageryProvider(provider);
     state.surfaceLayer.alpha = 0.55;
+    viewer.scene.requestRender();
   }
 
   // -------------------------------------------------------------------
@@ -241,19 +244,32 @@
         <tr><td>Soil sensors</td><td>${soilDates.length} Chameleons, latest ${fmtDate(soilDates[soilDates.length - 1])}</td></tr>
         <tr><td>Rain next 48 h</td><td>${fc ? `${fc.mm} mm${fc.stale ? ` <em>(forecast table ends ${fmtDate(fc.to)})</em>` : ""}` : "not available"}</td></tr>
         <tr><td>ETo (AWS)</td><td>${inp.eto && !inp.eto.error ? `${inp.eto.eto} mm on ${fmtDate(inp.eto.date)}` : "not available"}</td></tr>
-        <tr><td>Tanks</td><td>${pct !== null ? `${pct.toFixed(0)}% full` : inp.tanks && !inp.tanks.error
-            ? `level ${[inp.tanks.level1, inp.tanks.level2].filter((v) => v !== null).join(" / ")} (full level not set)` : "not available"}</td></tr>
+        <tr><td>Tanks</td><td>${tankText(inp.tanks, pct)}</td></tr>
       </table>
       <h4>Rules</h4>
       <p class="dc-rules">Dryness = ${Object.entries(D.DEPTH_WEIGHTS).map(([d, w]) => `${w}×${d}`).join(" + ")} (Wet 0, Moist 1, Dry 2), IDW power ${D.IDW_POWER}.
         Irrigate ≥ ${D.IRRIGATE_FROM}, monitor ≥ ${D.MONITOR_FROM}. Postpone if ≥ ${D.RAIN_POSTPONE_MM} mm rain in 48 h.
-        Monitor → irrigate if ETo ≥ ${D.HIGH_ETO_MM} mm.</p>`;
+        Monitor → irrigate if ETo ≥ ${D.HIGH_ETO_MM} mm. Flag if tanks average &lt; ${D.TANK_LOW_PERCENT}%.</p>`;
 
     document.querySelectorAll(".dc-row").forEach((b) => b.addEventListener("click", () => {
       const r = state.rows.find((x) => String(x.row) === b.dataset.row);
       renderCard(r);
       flyToRow(r);
     }));
+  }
+
+  // "Tank 1: 38% · Tank 2: 101% (overfilled) – average 70%"
+  function tankText(tanks, pct) {
+    if (!tanks || tanks.error) return "not available";
+    const levels = [tanks.level1, tanks.level2];
+    if (!D.TANK_FULL_LEVEL) return `level ${levels.filter((v) => v !== null).join(" / ")} (full level not set)`;
+    const parts = levels.map((v, i) => {
+      if (typeof v !== "number") return null;
+      const p = (v / D.TANK_FULL_LEVEL) * 100;
+      return `Tank ${i + 1}: ${p.toFixed(0)}%${p > 100 ? " <em>(overfilled)</em>" : ""}`;
+    }).filter(Boolean);
+    const low = pct !== null && pct < D.TANK_LOW_PERCENT ? " <em>– low</em>" : "";
+    return `${parts.join(" · ")}${parts.length > 1 ? ` – average ${pct.toFixed(0)}%` : ""}${low}<br><span class="dc-muted">${fmtDate(tanks.time)}</span>`;
   }
 
   function flyToRow(r) {
@@ -272,7 +288,10 @@
 
   $("dc-surface").addEventListener("change", (e) => showSurface(e.target.checked).catch(console.error));
   $("dc-toggle").addEventListener("click", () => $("decisionCard").classList.toggle("collapsed"));
-  $("dc-refresh").addEventListener("click", () => run());
+  $("dc-refresh").addEventListener("click", () => {
+    run();
+    if (window.refreshSoilProfiles) window.refreshSoilProfiles();
+  });
 
   run();
 })();

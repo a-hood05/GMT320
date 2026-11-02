@@ -297,3 +297,4 @@ button { font: inherit; }
 .dc-inputs em { color: #ffc66b; font-style: normal; }
 .dc-rules { font-size: 11px; color: var(--muted); margin: 0; }
 @media (max-width: 1000px) { #decisionCard { left: 14px; width: calc(100% - 28px); } }
+#mapKey .swatch-block { width: 16px; height: 12px; border-radius: 2px; margin: 0 6px; }

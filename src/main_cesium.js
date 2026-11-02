@@ -24,6 +24,11 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
 // Stops buildings/trees from being drawn "through" hills
 viewer.scene.globe.depthTestAgainstTerrain = true;
 
+// Only redraw when something changes (camera move, data loaded) instead of
+// 60 times a second - much lighter on the graphics card and the laptop's battery/heat.
+viewer.scene.requestRenderMode = true;
+viewer.scene.maximumRenderTimeChange = Infinity;
+
 
 // ---------------------------------------------------------------------
 // STEP 2 - Your data files (must be in the same folder as index.html)
@@ -61,6 +66,11 @@ function getProp(entity, names, fallback) {
   return fallback;
 }
 
+// Zoom behaviour for dots (sensors, tanks): full size up close, shrinking as you
+// zoom out, and hidden beyond POINT_HIDE_M so the farm overview stays readable.
+const POINT_SCALE = new Cesium.NearFarScalar(150, 1.0, 1500, 0.4);   // 150 m: 100%, 1.5 km: 40%
+const POINT_HIDE_M = 1500;
+
 // Turn the default GeoJSON point pin into a coloured dot stuck to the ground
 function stylePoint(entity, color, size) {
   entity.billboard = undefined;                  // remove the default blue pin
@@ -70,7 +80,9 @@ function stylePoint(entity, color, size) {
     outlineColor: Cesium.Color.WHITE,
     outlineWidth: 2,
     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    disableDepthTestDistance: Number.POSITIVE_INFINITY // never hidden by terrain
+    disableDepthTestDistance: Number.POSITIVE_INFINITY, // never hidden by terrain
+    scaleByDistance: POINT_SCALE,
+    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, POINT_HIDE_M)
   };
 }
 
@@ -150,23 +162,67 @@ loadLayer("aoi", FILES.aoi, (entity) => {
 
 
 // ---------------------------------------------------------------------
-// STEP 4 - Buildings (polygons -> 3D extruded boxes)
+// STEP 4 - Buildings: walls coloured by building type, plus a separate roof
+//          slab coloured by roof material (from the attribute table)
 // ---------------------------------------------------------------------
+const WALL_COLOURS = {                       // building_t
+  greenhouse:   Cesium.Color.WHITE.withAlpha(0.35),       // see-through
+  shed:         Cesium.Color.fromCssColorString("#c3c7cb"),
+  storage:      Cesium.Color.fromCssColorString("#c3c7cb"),
+  warehouse:    Cesium.Color.fromCssColorString("#b8bdc2"),
+  parking:      Cesium.Color.fromCssColorString("#b8bdc2"),
+  water_storage: Cesium.Color.fromCssColorString("#9fb8c8"),
+  hut:          Cesium.Color.fromCssColorString("#a67c52"),
+  bridge:       Cesium.Color.fromCssColorString("#9e9e9e"),
+};
+const DEFAULT_WALL = Cesium.Color.fromCssColorString("#e6dcc6");  // offices, houses, labs ...
+
+const ROOF_COLOURS = {                       // first word of roof_type
+  zinc:  Cesium.Color.fromCssColorString("#8d98a3"),      // corrugated metal
+  tile:  Cesium.Color.fromCssColorString("#b4532a"),      // terracotta
+  pvc:   Cesium.Color.WHITE.withAlpha(0.6),
+  glass: Cesium.Color.fromCssColorString("#cfe8f5").withAlpha(0.5),
+  grass: Cesium.Color.fromCssColorString("#a08850"),      // thatch
+};
+const DEFAULT_ROOF = Cesium.Color.fromCssColorString("#6f6f6f");
+const ROOF_THICKNESS_M = 0.4;
+
+const roofs = [];   // roof slabs are added once all buildings are loaded
+
 loadLayer("buildings", FILES.buildings, (entity) => {
   if (!entity.polygon) return;
 
-  // Look for a height column under a few common names; default 5 m.
-  // !! Change these names to match YOUR attribute table !!
-  const raw = getProp(entity, ["Height", "height", "HEIGHT", "Heigh", "levels"], 5);
-  const height = Number(raw) || 5;
+  // building height in metres ("height" column); flat/missing heights get 2.5 m
+  const height = Math.max(Number(getProp(entity, ["height", "Height", "HEIGHT"], 0)) || 0, 2.5);
+  const type = String(getProp(entity, ["building_t"], "")).trim().toLowerCase();
+  const roof = String(getProp(entity, ["roof_type"], "")).trim().toLowerCase().split(/[\s&]+/)[0];
 
-  entity.polygon.height = 0;                    // base on the ground
-  entity.polygon.extrudedHeight = height;       // top = height metres up
+  // walls
+  entity.polygon.height = 0;
+  entity.polygon.extrudedHeight = height;
   entity.polygon.heightReference = Cesium.HeightReference.CLAMP_TO_GROUND;
   entity.polygon.extrudedHeightReference = Cesium.HeightReference.RELATIVE_TO_GROUND;
-  entity.polygon.material = Cesium.Color.ORANGE;
-  entity.polygon.outline = true;
-  entity.polygon.outlineColor = Cesium.Color.BLACK;
+  entity.polygon.material = WALL_COLOURS[type] || DEFAULT_WALL;
+  entity.polygon.outline = false;
+
+  // roof slab sitting on top of the walls (water tanks have no roof)
+  if (roof !== "n/a" && type !== "water_storage") {
+    roofs.push({
+      name: entity.name,
+      properties: entity.properties,
+      polygon: {
+        hierarchy: entity.polygon.hierarchy,
+        height: height,
+        extrudedHeight: height + ROOF_THICKNESS_M,
+        heightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+        extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+        material: ROOF_COLOURS[roof] || DEFAULT_ROOF,
+      },
+    });
+  }
+}).then((dataSource) => {
+  // added to the same layer, so the "Buildings" checkbox hides walls and roofs together
+  if (dataSource) roofs.forEach((r) => dataSource.entities.add(r));
 });
 
 
@@ -205,10 +261,22 @@ loadLayer("irrigation", FILES.irrigation, (entity) => {
 
 
 // ---------------------------------------------------------------------
-// STEP 7 - Trees (points -> green dots, or polygons -> green canopy)
+// STEP 7 - Trees: simple 3D trees built from Cesium's own shapes
+//          (cylinder trunk + ellipsoid crown) - no model file needed.
+//          Close up: 3D trees. Further than TREE_3D_M: a green dot per tree.
+//          Set USE_3D_TREES = false to show only the dots.
 // ---------------------------------------------------------------------
-// STEP 7 - Trees (3D models instead of dots)
-let treeCount = 0;   // counts trees, used for the 10-tree test below
+const USE_3D_TREES = true;
+const TREE_3D_M = 800;
+
+// Repeatable "random" number per tree, so the orchard looks the same on every reload
+function treeRandom(id, salt) {
+  const x = Math.sin((Number(id) || 0) * 12.9898 + salt * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+const tree3d = new Cesium.CustomDataSource("trees3d");
+viewer.dataSources.add(tree3d);
 
 loadLayer("trees", FILES.trees, (entity) => {
   // Trees stored as polygons: just colour them green
@@ -217,40 +285,61 @@ loadLayer("trees", FILES.trees, (entity) => {
     entity.polygon.classificationType = Cesium.ClassificationType.TERRAIN;
     return;
   }
-
   entity.billboard = undefined;   // remove the default pin
-  treeCount++;
-
-  // Simple green dot, shown when the camera is far away (over 300 m)
   entity.point = {
-    pixelSize: 6,
-    color: Cesium.Color.FORESTGREEN,
+    pixelSize: 5,
+    color: Cesium.Color.fromCssColorString("#2f6b25"),
     heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(300, Number.POSITIVE_INFINITY)
+    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(USE_3D_TREES ? TREE_3D_M : 0, 6000)
   };
+}, { clampToGround: true }).then((dataSource) => {
+  if (dataSource && USE_3D_TREES) build3DTrees(dataSource).catch((err) => console.warn("3D trees skipped:", err));
+});
 
-  // TEST: only the first 10 trees get a 3D model.
-  // Once it runs smoothly, change 10 to 168 (or delete this if-line).
-  if (treeCount > 10) return;
+async function build3DTrees(dataSource) {
+  const now = Cesium.JulianDate.now();
+  const trees = dataSource.entities.values.filter((e) => e.position).map((e) => ({
+    id: getProp(e, ["id", "fid"], 0),
+    carto: Cesium.Cartographic.fromCartesian(e.position.getValue(now)),
+  }));
 
-  // Random rotation so the trees don't all look identical
-  const position = entity.position.getValue(Cesium.JulianDate.now());
-  entity.orientation = Cesium.Transforms.headingPitchRollQuaternion(
-    position,
-    new Cesium.HeadingPitchRoll(Math.random() * Math.PI * 2, 0, 0)
-  );
+  // real ground height under every tree (terrain is ~1360 m above sea level)
+  for (let i = 0; i < 80 && viewer.terrainProvider instanceof Cesium.EllipsoidTerrainProvider; i++) {
+    await new Promise((r) => setTimeout(r, 250));      // wait for the world terrain to be ready
+  }
+  await Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, trees.map((t) => t.carto));
 
-  // The 3D tree, only drawn when the camera is within 300 m
-  entity.model = {
-    uri: "models/trees/scene.gltf",     // folder is "trees" (with an s)
-    scale: 1,                           // change if trees look too big or small
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 300)
-  };
-}, { clampToGround: true });
+  const show = new Cesium.DistanceDisplayCondition(0, TREE_3D_M);
+  const trunkColour = Cesium.Color.fromCssColorString("#5c4029");
+  for (const { id, carto } of trees) {
+    const ground = carto.height;
+    if (!Number.isFinite(ground)) continue;            // never add a tree without a valid height
+    const lon = carto.longitude, lat = carto.latitude;
+    const size = 0.85 + treeRandom(id, 2) * 0.3;       // 85% - 115%
+    const trunkH = 2.4 * size, crownR = 2.5 * size, crownH = 2.1 * size;
+    const green = Cesium.Color.fromHsl(0.27 + treeRandom(id, 3) * 0.04, 0.45, 0.28 + treeRandom(id, 4) * 0.08);
+
+    tree3d.entities.add({
+      position: Cesium.Cartesian3.fromRadians(lon, lat, ground + trunkH / 2),
+      cylinder: { length: trunkH, topRadius: 0.2 * size, bottomRadius: 0.28 * size,
+                  material: trunkColour, slices: 8, distanceDisplayCondition: show },
+    });
+    tree3d.entities.add({
+      position: Cesium.Cartesian3.fromRadians(lon, lat, ground + trunkH + crownH * 0.7),
+      ellipsoid: { radii: new Cesium.Cartesian3(crownR, crownR, crownH),
+                   material: green, slicePartitions: 10, stackPartitions: 8, distanceDisplayCondition: show },
+    });
+  }
+  tree3d.show = !document.getElementById("toggle-trees") || document.getElementById("toggle-trees").checked;
+  viewer.scene.requestRender();
+}
+
+// The "Trees" checkbox also hides the 3D trees
+const treesBox = document.getElementById("toggle-trees");
+if (treesBox) treesBox.addEventListener("change", () => { tree3d.show = treesBox.checked; viewer.scene.requestRender(); });
 
 // ---------------------------------------------------------------------
-// STEP 8 - Rainwater tanks (JoJo-style tanks)
+// STEP 8 - Rainwater tanks
 // ---------------------------------------------------------------------
 loadLayer("tanks", FILES.tanks, (entity) => {
   if (entity.polygon) {
@@ -264,20 +353,11 @@ loadLayer("tanks", FILES.tanks, (entity) => {
     entity.polygon.outline = true;
     entity.polygon.outlineColor = Cesium.Color.BLACK;
   } else {
-  // Tank stored as a point -> show a 3D JoJo tank model instead of a dot
-  entity.billboard = undefined;
-  entity.point = undefined;
-  entity.model = {
-    uri: "models/jojo_tank/scene.gltf",
-    scale: 3.0,
-    minimumPixelSize: 80,
-    maximumScale: 200,
-    heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-    color: Cesium.Color.DARKGREEN,
-colorBlendMode: Cesium.ColorBlendMode.MIX,
-colorBlendAmount: 0.5,
-  };
-}
+    // Tank stored as a point -> blue dot, bigger dot = bigger capacity
+    // (same style as the 2D map; the 3D JoJo model was removed)
+    const capacity = Number(getProp(entity, ["capacity_l"], 0)) || 0;
+    stylePoint(entity, Cesium.Color.fromCssColorString("#0d6efd"), 7 + Math.sqrt(capacity) / 20);
+  }
 
   // Label it with a name/ID column if you have one (change names if needed)
   const name = getProp(entity, ["Name", "name", "ID", "id", "Tank_ID"], null);
@@ -308,6 +388,7 @@ Object.keys(FILES).forEach((key) => {
   if (!box) return;
   box.addEventListener("change", () => {
     if (layers[key]) layers[key].show = box.checked;  // show or hide the layer
+    viewer.scene.requestRender();
   });
 });
 

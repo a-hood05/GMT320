@@ -24,6 +24,18 @@ const DASHBOARD_CONFIG = {
     trees:      "data/tree.geojson",
     irrigation: "data/irrigation.geojson",
     tanks:      "data/rainwater_tank.geojson",
-    sensors:    "data/sensor.geojson"
-  }
+    sensors:    "data/sensor.geojson",
+    aws:        "data/aws.geojson"          // Davis Vantage Pro2 weather station
+  },
+
+  // Weather station representativeness rings - how far the AWS weather applies.
+  // Source: WMO Guide to Instruments and Methods of Observation (WMO-No. 8),
+  // Volume I, Chapter 1, section 1.1.2 "Representativeness":
+  //   microscale < 100 m (agricultural meteorology, e.g. evaporation)
+  //   toposcale / local scale 100 m - 3 km
+  AWS_RINGS: [
+    { m: 100,  label: "100 m – microscale (WMO-No. 8)" },
+    { m: 3000, label: "3 km – local scale (WMO-No. 8)" },
+  ],
+  AWS_RANGE_LABEL: "Representative area: microscale < 100 m, local scale up to 3 km (WMO-No. 8, §1.1.2)"
 };

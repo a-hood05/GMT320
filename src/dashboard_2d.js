@@ -346,6 +346,7 @@ function buildDashboard(data) {
   L.control.layers(baseMaps, overlayMaps, { collapsed: true, position: 'topright' }).addTo(map);
 
 
+
   /* ---------- 11. SCALE BAR ---------- */
   L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
 

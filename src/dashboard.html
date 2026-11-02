@@ -164,6 +164,8 @@
       <label><input type="checkbox" id="toggle-tanks"      checked> Rainwater tanks</label>
       <label><input type="checkbox" id="toggle-sensors"    checked> Sensors</label>
       <label><input type="checkbox" id="toggle-profiles"   checked> Soil moisture profiles</label>
+      <label><input type="checkbox" id="toggle-aws"        checked> Weather station (AWS)</label>
+      <label><input type="checkbox" id="toggle-awsrange"> AWS representative area</label>
 
       <h3 class="panel-sub">Drone imagery</h3>
       <div class="index-switch small" id="img3d-index">
@@ -176,7 +178,7 @@
       <input type="range" id="img3d-opacity" min="0" max="100" value="80" title="Opacity" />
 
       <button id="btn-zoom" class="ghost-btn">Zoom to farm</button>
-      <p class="hint">Click a sensor or soil pillar to see its recordings.</p>
+      <p class="hint">Click a sensor, soil pillar or the AWS to see its recordings.</p>
     </div>
 
     <div id="mapKey" class="float-card">
@@ -186,12 +188,21 @@
       <div class="keyRow"><span class="swatch" style="background:#cd5c5c"></span>Brick road</div>
       <div class="keyRow"><span class="swatch" style="background:#f4a460"></span>Informal dirt road</div>
       <div class="keyRow"><span class="swatch" style="background:#d3d3d3"></span>Other road type</div>
+      <div class="keyTitle key-gap">ROOFS</div>
+      <div class="keyRow"><span class="swatch swatch-block" style="background:#8d98a3"></span>Zinc</div>
+      <div class="keyRow"><span class="swatch swatch-block" style="background:#b4532a"></span>Tile</div>
+      <div class="keyRow"><span class="swatch swatch-block" style="background:#e9eef0"></span>PVC / glass (greenhouse)</div>
+      <div class="keyRow"><span class="swatch swatch-block" style="background:#a08850"></span>Grass thatch</div>
+      <div class="keyRow"><span class="swatch swatch-block" style="background:#6f6f6f"></span>Unknown</div>
+      <div class="keyTitle key-gap">POINTS</div>
+      <div class="keyRow"><span class="swatch swatch-dot" style="background:#0d6efd"></span>Rainwater tank (size = capacity)</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#ff0000"></span>Sensor (no data)</div>
       <div class="keyTitle key-gap">SOIL MOISTURE (latest)</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#2b8cbe"></span>Wet</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#41ab5d"></span>Moist</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#e6550d"></span>Dry</div>
       <div class="key-note">Pillars: top = 20 cm, middle = 50 cm, bottom = 80 cm depth</div>
+      <div class="keyRow"><span class="swatch swatch-dot" style="background:#00e5ff"></span>Weather station (AWS)</div>
       <div class="keyTitle key-gap">IRRIGATION LINES</div>
       <div class="keyRow"><span class="swatch" style="background:#e03b3b"></span>Irrigate</div>
       <div class="keyRow"><span class="swatch" style="background:#f2c12e"></span>Monitor</div>
@@ -252,11 +263,6 @@
       <div id="sd-status" class="drawer-status"></div>
     </aside>
 
-    <div id="credits">
-      Tree model: <a href="https://sketchfab.com/3d-models/maple-tree-4b27adcf92f644bdabf8ecc6c5bef399" target="_blank">"Maple tree"</a>
-      by <a href="https://sketchfab.com/atrodler" target="_blank">atrodler</a>,
-      <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY-4.0</a>
-    </div>
   </main>
 
   <script src="dashboard_config.js"></script>

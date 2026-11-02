@@ -50,10 +50,13 @@
       const res = await fetch(`${cfg.API_BASE}/api/sensors/latest`);
       data = await res.json();
     } catch (err) {
-      console.warn("Soil profiles: server not reachable - sensors stay red.", err);
+      // server not running (yet) - try again in 10 s, so starting the server later just works
+      console.warn("Soil profiles: server not reachable - retrying in 10 s.");
+      setTimeout(buildProfiles, 10000);
       return;
     }
     if (!data || data.source !== "postgis") return;
+    profiles.entities.removeAll();              // rebuilding (e.g. after ↻) - clear the old pillars
 
     const latest = Object.fromEntries((data.sensors || []).map((s) => [String(s.id), s]));
     const now = Cesium.JulianDate.now();
@@ -97,7 +100,7 @@
             material: colourFor(statusAt(depth)).withAlpha(0.9),
             outline: true,
             outlineColor: Cesium.Color.BLACK.withAlpha(0.4),
-            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2500),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1200),   // only when zoomed in
           },
           description: `${depth}: ${statusAt(depth) || "–"}${value !== null && value !== undefined ? ` (${value})` : ""}`,
         });
@@ -107,7 +110,8 @@
     profiles.show = $("toggle-profiles").checked;
   }
 
-  $("toggle-profiles").addEventListener("change", (e) => { profiles.show = e.target.checked; });
+  $("toggle-profiles").addEventListener("change", (e) => { profiles.show = e.target.checked; viewer.scene.requestRender(); });
+  window.refreshSoilProfiles = buildProfiles;   // used by the ↻ button on the decision card
   buildProfiles();
 
 
@@ -127,7 +131,7 @@
   async function showImagery() {
     if (img.layer) { viewer.imageryLayers.remove(img.layer, false); img.layer = null; }
     const key = $("key-imagery");
-    if (img.index === "off" || !img.manifest) { key.hidden = true; return; }
+    if (img.index === "off" || !img.manifest) { key.hidden = true; viewer.scene.requestRender(); return; }
 
     const entry = img.manifest.dates[+dateSelect.value];
     const info = entry && entry[img.index];
@@ -152,6 +156,7 @@
     $("key-img-max").textContent = (meta.max ?? "") + unit;
     $("key-img-ramp").classList.toggle("reverse", !!meta.reverse);
     key.hidden = false;
+    viewer.scene.requestRender();
   }
 
   fetch(cfg.NDVI_MANIFEST)
@@ -174,5 +179,97 @@
     });
   });
   dateSelect.addEventListener("change", () => showImagery().catch(console.error));
-  $("img3d-opacity").addEventListener("input", () => { if (img.layer) img.layer.alpha = opacity(); });
+  $("img3d-opacity").addEventListener("input", () => { if (img.layer) { img.layer.alpha = opacity(); viewer.scene.requestRender(); } });
+
+
+  // -------------------------------------------------------------------
+  // 3. WEATHER STATION (Davis Vantage Pro2) + RANGE RING
+  // -------------------------------------------------------------------
+  const aws = new Cesium.CustomDataSource("aws");
+  const awsRange = new Cesium.CustomDataSource("awsRange");
+  viewer.dataSources.add(aws);
+  viewer.dataSources.add(awsRange);
+  awsRange.show = false;
+
+  fetch(cfg.FILES.aws)
+    .then((r) => r.json())
+    .then((gj) => {
+      const f = gj.features[0];
+      if (!f) return;
+      const [lon, lat] = f.geometry.coordinates;
+      const station = aws.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(lon, lat),
+        point: {
+          pixelSize: 16, color: Cesium.Color.fromCssColorString("#00e5ff"),
+          outlineColor: Cesium.Color.WHITE, outlineWidth: 3,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          scaleByDistance: new Cesium.NearFarScalar(150, 1.0, 3000, 0.5),   // always visible, smaller when far
+        },
+        label: {
+          text: "AWS",
+          scaleByDistance: new Cesium.NearFarScalar(150, 1.0, 3000, 0.6), font: "bold 14px sans-serif", fillColor: Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          pixelOffset: new Cesium.Cartesian2(0, -22), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+      });
+      station.isAws = true;
+
+      // rings: filled disc + dashed outline per scale, both draped on the terrain
+      const KX = 111320 * Math.cos((lat * Math.PI) / 180), KY = 110574;
+      const colour = Cesium.Color.fromCssColorString("#00e5ff");
+      cfg.AWS_RINGS.forEach(({ m: R, label }, i) => {
+        const ring = [];
+        for (let a = 0; a <= 360; a += 3) {
+          const t = (a * Math.PI) / 180;
+          ring.push(lon + (R * Math.cos(t)) / KX, lat + (R * Math.sin(t)) / KY);
+        }
+        awsRange.entities.add({
+          polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(ring),
+            material: colour.withAlpha(i === 0 ? 0.18 : 0.07),
+            classificationType: Cesium.ClassificationType.TERRAIN,
+          },
+        });
+        awsRange.entities.add({
+          polyline: {
+            positions: Cesium.Cartesian3.fromDegreesArray(ring), width: 3, clampToGround: true,
+            material: new Cesium.PolylineDashMaterialProperty({ color: colour }),
+          },
+        });
+        awsRange.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(lon, lat + R / KY),
+          label: {
+            text: label, font: "13px sans-serif", fillColor: colour,
+            outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset: new Cesium.Cartesian2(0, -10),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          },
+        });
+      });
+    })
+    .catch((err) => console.warn("No weather station file (data/aws.geojson)", err));
+
+  function setRange(on) {
+    awsRange.show = on;
+    viewer.scene.requestRender();
+    $("toggle-awsrange").checked = on;
+  }
+  $("toggle-aws").addEventListener("change", (e) => { aws.show = e.target.checked; if (!e.target.checked) setRange(false); viewer.scene.requestRender(); });
+  $("toggle-awsrange").addEventListener("change", (e) => setRange(e.target.checked));
+
+  // Clicking the station: show its range and open its recordings
+  viewer.selectedEntityChanged.addEventListener((entity) => {
+    if (!entity || !entity.isAws) return;
+    viewer.infoBox.container.style.display = "none";
+    setRange(true);
+    window.openReadingsPanel({
+      label: "WEATHER STATION",
+      title: "Davis Vantage Pro2 AWS",
+      meta: cfg.AWS_RANGE_LABEL,
+      url: (days) => `${cfg.API_BASE}/api/aws/readings?days=${days}`,
+    });
+    viewer.flyTo(awsRange, { duration: 1.5, offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-50), 0) });
+  });
 })();

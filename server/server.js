@@ -175,6 +175,53 @@ app.get("/api/decision-inputs", async (req, res) => {
 
 
 // ---------------------------------------------------------------------
+// Weather station (Davis Vantage Pro2, AWS_Table1_Phytotron_D_Section_Davis)
+//   GET /api/aws/readings?days=7  -> same shape as a sensor's readings
+// Dates/times are text in the database, so they are read here in JavaScript.
+// ---------------------------------------------------------------------
+const AWS_TABLE = "AWS_Table1_Phytotron_D_Section_Davis";
+const AWS_COLUMNS = ["high temp", "low temp", "rain", "rain rate"];
+
+// "1:30a", "1:30 PM", "13:30" -> [hours, minutes]
+export function parseClock(text) {
+  const m = String(text ?? "").trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*([ap])?/i);
+  if (!m) return [0, 0];
+  let h = +m[1];
+  if (m[3]) { const pm = m[3].toLowerCase() === "p"; if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
+  return [h, +m[2]];
+}
+
+export function awsRows(rows) {
+  const dayFirst = rows.some((r) => { const m = String(r.date ?? "").trim().match(/^(\d{1,2})[-/.]/); return m && +m[1] > 12; });
+  return rows.map((r) => {
+    const d = parseDate(r.date, dayFirst);
+    if (!d) return null;
+    const [h, min] = parseClock(r.time);
+    d.setHours(h, min, 0, 0);
+    const out = { time: d.toISOString() };
+    for (const c of AWS_COLUMNS) out[c] = toNumber(r[c]);
+    return out;
+  }).filter(Boolean).sort((a, b) => a.time.localeCompare(b.time));
+}
+
+app.get("/api/aws/readings", async (req, res) => {
+  if (!pool) return res.status(503).json({ error: "Database not connected" });
+  const days = req.query.days === "all" ? null : Math.min(Math.max(Number(req.query.days) || 7, 1), 3650);
+  try {
+    const all = awsRows((await pool.query(`SELECT * FROM ${q(AWS_TABLE)}`)).rows);
+    const last = all.length ? new Date(all[all.length - 1].time) : null;
+    const rows = days && last ? all.filter((r) => new Date(r.time) >= new Date(+last - days * 86400000)) : all;
+    const columns = AWS_COLUMNS.filter((c) => rows.some((r) => r[c] !== null));
+    res.json({ source: "postgis", table: AWS_TABLE, sensor_id: "aws", statuses: {}, columns,
+               rows: rows.slice(-MAX_ROWS), message: rows.length ? undefined : "No weather station records." });
+  } catch (err) {
+    console.error("AWS query failed:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ---------------------------------------------------------------------
 // Recordings for one map sensor
 // ?days=1|7|30|all  -> counted back from that sensor's LATEST recording
 // ---------------------------------------------------------------------
