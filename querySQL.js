@@ -25,7 +25,7 @@ const newestDate = '2026-10-01'; //Used for
 const timeStamp = '08/19/2026'; //Used for treatment query
 
 
-// The key that stores the table content is defined and the parameters fore the query is added to text and values
+// The key that stores the table content is defined and the query parameters are storesd in text and values
 const queriesSensors = {
     //First adding treatment tables query parameters
     treatment2_p1: {
