@@ -156,21 +156,75 @@ export function latestEto(rows) {
   return last ? { date: last.d.toISOString(), eto: last.eto, rainfall: last.rain } : null;
 }
 
+// ---- Current weather on the farm ----
+// 1st choice: the AWS on the farm (measured). 2nd: Open-Meteo "weather_current" (modelled).
+// Each gives: when, raining now?, rain in the 24 h before that moment, temperature.
+const CURRENT_TABLE = "weather_current";
+
+export function currentFromAws(rows) {
+  if (!rows.length) return null;
+  const last = rows[rows.length - 1], t = new Date(last.time);
+  const day = rows.filter((r) => new Date(r.time) > new Date(+t - 24 * 3600000));
+  const temps = [last["high temp"], last["low temp"]].filter((v) => typeof v === "number");
+  return {
+    source: "AWS (measured on the farm)",
+    time: last.time,
+    rainingNow: (last["rain rate"] ?? 0) > 0 || (last.rain ?? 0) > 0,
+    rain24h: Math.round(day.reduce((s, r) => s + (r.rain ?? 0), 0) * 10) / 10,
+    temperature: temps.length ? Math.round((temps.reduce((a, b) => a + b, 0) / temps.length) * 10) / 10 : null,
+  };
+}
+
+export function currentFromModel(rows) {
+  const parsed = rows.map((r) => ({
+    t: parseDate(r.date_time),
+    rain: toNumber(r.precipitation) ?? toNumber(r.rain),
+    temp: toNumber(r.temperature_2m),
+  })).filter((r) => r.t).sort((a, b) => a.t - b.t);
+  if (!parsed.length) return null;
+  const last = parsed[parsed.length - 1];
+  const day = parsed.filter((r) => r.t > new Date(+last.t - 24 * 3600000));
+  return {
+    source: "Open-Meteo (modelled)",
+    time: last.t.toISOString(),
+    rainingNow: (last.rain ?? 0) > 0,
+    rain24h: Math.round(day.reduce((s, r) => s + (r.rain ?? 0), 0) * 10) / 10,
+    temperature: last.temp,
+  };
+}
+
+// Prefer the newest AWS reading if it is fresh enough, otherwise the model;
+// mark it "tooOld" if even the best one is older than 24 h, so the decision ignores it.
+export function pickCurrent(aws, model, now = new Date()) {
+  const age = (c) => (c ? (now - new Date(c.time)) / 3600000 : Infinity);
+  const fresh = 6;   // hours
+  let best = null;
+  if (aws && age(aws) <= fresh) best = aws;
+  else if (model && age(model) <= fresh) best = model;
+  else best = [aws, model].filter(Boolean).sort((a, b) => age(a) - age(b))[0] || null;
+  if (!best) return null;
+  return { ...best, ageHours: Math.round(age(best) * 10) / 10, tooOld: age(best) > 24 };
+}
+
 app.get("/api/decision-inputs", async (req, res) => {
   if (!pool) return res.status(503).json({ error: "Database not connected (DEMO_MODE=true)" });
   const part = async (fn) => { try { return await fn(); } catch (err) { return { error: err.message }; } };
 
-  const [sensors, forecast, eto] = await Promise.all([
+  const [sensors, forecast, eto, awsNow, modelNow] = await Promise.all([
     latestOfAllSensors(),
     part(async () => rainNext48h((await pool.query(`SELECT * FROM ${q(FORECAST_TABLE)}`)).rows)),
     part(async () => latestEto((await pool.query(`SELECT * FROM ${q(ETO_TABLE)}`)).rows)),
+    part(async () => currentFromAws(awsRows((await pool.query(`SELECT * FROM ${q(AWS_TABLE)}`)).rows))),
+    part(async () => currentFromModel((await pool.query(`SELECT * FROM ${q(CURRENT_TABLE)}`)).rows)),
   ]);
+  const current = pickCurrent(awsNow && !awsNow.error ? awsNow : null, modelNow && !modelNow.error ? modelNow : null)
+               || { error: [awsNow?.error, modelNow?.error].filter(Boolean).join("; ") || "no current weather data" };
   const waterRows = sensors.filter((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data" && s.values);
   const pick = (k) => waterRows.map((s) => s.values[k]).find((v) => v !== undefined && v !== null) ?? null;
   const tanks = waterRows.length ? { time: waterRows[0].time, level1: pick("level1"), level2: pick("level2") }
                                  : { error: sensors.find((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data")?.error || "no tank data" };
 
-  res.json({ source: "postgis", generated: new Date().toISOString(), sensors, forecast, eto, tanks });
+  res.json({ source: "postgis", generated: new Date().toISOString(), sensors, forecast, eto, tanks, current });
 });
 
 

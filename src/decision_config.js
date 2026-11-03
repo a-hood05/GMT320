@@ -26,6 +26,9 @@ const DECISION_CONFIG = {
   // Step 4 - weather
   RAIN_POSTPONE_MM: 10,    // rain expected in the next 48 h that postpones irrigation - placeholder
   HIGH_ETO_MM: 5,          // daily ETo (AWS) that pushes "monitor" rows to "irrigate" - placeholder
+  // Current weather on the farm: AWS (measured) first, Open-Meteo "weather_current" if the AWS is
+  // older than 6 h; ignored completely when older than 24 h (set in server/server.js, pickCurrent)
+  RAIN_RECENT_MM: 5,       // rain in the last 24 h that postpones irrigation - placeholder
 
   // Step 5 - rainwater tanks
   TANK_FULL_LEVEL: 100,    // the level sensors report % full (100 = full; can read above 100 when overfilled)

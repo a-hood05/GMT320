@@ -4,7 +4,8 @@
 //   1. dryness score per soil sensor  (Wet 0 / Moist 1 / Dry 2, weighted by depth)
 //   2. IDW interpolation -> dryness surface over the orchard (draped in 3D)
 //   3. average dryness along each irrigation line -> soil decision
-//   4. weather: rain forecast (postpone) and ETo (raise "monitor" to "irrigate")
+//   4. weather: ETo (raise "monitor" to "irrigate"), raining now / rain in the last 24 h
+//      and rain forecast (postpone)
 //   5. rainwater tanks: flag when the tanks are low
 //
 // Settings: decision_config.js     Data: GET /api/decision-inputs (server.js)
@@ -66,6 +67,18 @@
     if (decision === "monitor" && typeof eto === "number" && eto >= D.HIGH_ETO_MM) {
       decision = "irrigate";
       reasons.push(`high water demand (ETo ${eto} mm ≥ ${D.HIGH_ETO_MM} mm)`);
+    }
+
+    // Current weather: the soil sensors can lag behind fresh rain, so check it directly
+    const now = inputs.current && !inputs.current.error && !inputs.current.tooOld ? inputs.current : null;
+    if (decision === "irrigate" && now) {
+      if (now.rainingNow) {
+        decision = "postpone";
+        reasons.push(`it is raining on the farm now (${now.source})`);
+      } else if (typeof now.rain24h === "number" && now.rain24h >= D.RAIN_RECENT_MM) {
+        decision = "postpone";
+        reasons.push(`${now.rain24h} mm rain in the last 24 h (≥ ${D.RAIN_RECENT_MM} mm) – sensors may not show it yet`);
+      }
     }
 
     const rain = inputs.forecast && inputs.forecast.mm;
@@ -242,13 +255,14 @@
       <h4>Inputs used</h4>
       <table class="dc-inputs">
         <tr><td>Soil sensors</td><td>${soilDates.length} Chameleons, latest ${fmtDate(soilDates[soilDates.length - 1])}</td></tr>
+        <tr><td>Weather now</td><td>${currentText(inp.current)}</td></tr>
         <tr><td>Rain next 48 h</td><td>${fc ? `${fc.mm} mm${fc.stale ? ` <em>(forecast table ends ${fmtDate(fc.to)})</em>` : ""}` : "not available"}</td></tr>
         <tr><td>ETo (AWS)</td><td>${inp.eto && !inp.eto.error ? `${inp.eto.eto} mm on ${fmtDate(inp.eto.date)}` : "not available"}</td></tr>
         <tr><td>Tanks</td><td>${tankText(inp.tanks, pct)}</td></tr>
       </table>
       <h4>Rules</h4>
       <p class="dc-rules">Dryness = ${Object.entries(D.DEPTH_WEIGHTS).map(([d, w]) => `${w}×${d}`).join(" + ")} (Wet 0, Moist 1, Dry 2), IDW power ${D.IDW_POWER}.
-        Irrigate ≥ ${D.IRRIGATE_FROM}, monitor ≥ ${D.MONITOR_FROM}. Postpone if ≥ ${D.RAIN_POSTPONE_MM} mm rain in 48 h.
+        Irrigate ≥ ${D.IRRIGATE_FROM}, monitor ≥ ${D.MONITOR_FROM}. Postpone if it is raining now, ≥ ${D.RAIN_RECENT_MM} mm fell in the last 24 h, or ≥ ${D.RAIN_POSTPONE_MM} mm is forecast for 48 h.
         Monitor → irrigate if ETo ≥ ${D.HIGH_ETO_MM} mm. Flag if tanks average &lt; ${D.TANK_LOW_PERCENT}%.</p>`;
 
     document.querySelectorAll(".dc-row").forEach((b) => b.addEventListener("click", () => {
@@ -259,6 +273,14 @@
   }
 
   // "Tank 1: 38% · Tank 2: 101% (overfilled) – average 70%"
+  function currentText(c) {
+    if (!c || c.error) return "not available";
+    const when = new Date(c.time).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    const txt = `${c.rainingNow ? "raining" : "dry"}, ${c.rain24h} mm in last 24 h${c.temperature != null ? `, ${c.temperature} °C` : ""}
+      <br><small>${c.source}, ${when}</small>`;
+    return c.tooOld ? `<em>too old to use (${Math.round(c.ageHours)} h)</em><br><small>${c.source}, ${when}</small>` : txt;
+  }
+
   function tankText(tanks, pct) {
     if (!tanks || tanks.error) return "not available";
     const levels = [tanks.level1, tanks.level2];
