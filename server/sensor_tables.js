@@ -25,8 +25,7 @@ export const SENSOR_TABLES = {
   "21": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level1", "level2"] },
 
   // ---------- Chameleon soil-moisture sensors (serial numbers from the team) ----------
-  // NOTE: D967 was given as point 2, but point 2 is a TEROS 21 on the map and
-  // point 3 is the Chameleon not otherwise listed - so D967 is linked to 3.
+  // D967 is at map point 3 (confirmed by the team, Nov 2026).
   "1":  { table: "chameleon_19DD", time: "time" },
   "3":  { table: "chameleon_D967", time: "time" },
   "5":  { table: "chameleon_010A", time: "time" },

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FarmTech Africa - Dashboard setup</title>
+  <style>
+    :root {
+      --bg: #0f1513; --card: #17201d; --border: #2a3935;
+      --text: #e9f1ec; --muted: #a9b8af; --accent: #8fd199; --code: #0b100e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+    a { color: var(--accent); }
+    h1 { margin: 0 0 4px; font-size: 28px; }
+    h2 { margin: 40px 0 10px; font-size: 20px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    code { background: var(--code); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 13px; }
+    pre { background: var(--code); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+    pre code { background: none; border: 0; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14px; }
+    th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    .table-wrap { overflow-x: auto; }
+    .note { background: var(--card); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 6px; }
+    ol li, ul li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Dashboard setup</h1>
+  <p class="sub">How to run the FarmTech Africa smart irrigation dashboard (2D map, 3D farm, PostGIS data, sign-in).
+    <a href="index.html">← Back to the website</a></p>
+
+  <h2>1. Install</h2>
+  <p>You need <a href="https://nodejs.org">Node.js</a>, plus Tailscale connected for the PostGIS database.
+    In the inner <code>GMT320-Osimele</code> folder (the one with <code>package.json</code>):</p>
+  <pre><code>npm install</code></pre>
+
+  <h2>2. Settings file (server/.env)</h2>
+  <p>Copy <code>server/.env.example</code> to <code>server/.env</code> and fill in the real values.
+    <code>.env</code> is in <code>.gitignore</code>, so the passwords never go to GitHub.</p>
+  <pre><code># PostGIS (ask the team for the password)
+DB_host=100.105.1.96
+DB_port=5432
+DB_user=postgres
+DB_password=...
+DB_name=ftagisdatabase
+DEMO_MODE=auto
+
+# Sign-in passwords per role
+PASS_STAFF=...
+PASS_MANAGER=...
+PASS_RESEARCHER=...
+PASS_ADMIN=...
+AUTH_SECRET=...   # any long random text</code></pre>
+
+  <h2>3. Run</h2>
+  <pre><code>npm run server</code></pre>
+  <p>Then open <a href="http://localhost:3000/src/dashboard.html">http://localhost:3000/src/dashboard.html</a>.
+    Check the database connection at <a href="http://localhost:3000/api/health">/api/health</a>.</p>
+  <p class="note">Without the server, the 2D and 3D maps still open (for example with Live Server or
+    <code>npm run dev</code>), but sensor recordings, the irrigation decision and sign-in need the server.</p>
+
+  <h2>4. Other commands</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Command</th><th>What it does</th></tr>
+    <tr><td><code>npm run dbcheck</code></td><td>Lists every database table with its columns and a sample row.</td></tr>
+    <tr><td><code>npm run indices</code></td><td>Makes the NDVI, NDRE and canopy temperature images from the MicaSense Altum
+      orthomosaics in <code>C:\Users\noesi\Downloads\drone_images</code> (date from the name, e.g.
+      <code>251209ortho.tif</code> = 9 Dec 2025). Refresh the dashboard afterwards.</td></tr>
+    <tr><td><code>npm run dev</code></td><td>Vite development server for the website.</td></tr>
+  </table>
+  </div>
+
+  <h2>5. Who sees what (sign-in)</h2>
+  <p>Without signing in, everyone sees the farm layout and the irrigation decision. The rules live in
+    <code>src/roles_config.js</code>; the server checks the same file before it sends any recordings.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Role</th><th>Sees in addition</th></tr>
+    <tr><td>Farm operations staff</td><td>Sensor and weather-station locations, SIEMENS water data (tank levels)</td></tr>
+    <tr><td>Farm manager</td><td>All locations, SIEMENS water data, weather-station recordings</td></tr>
+    <tr><td>Researcher</td><td>All locations, soil-moisture recordings and pillars, drone NDVI / NDRE / temperature, weather-station recordings</td></tr>
+    <tr><td>Master admin</td><td>Everything</td></tr>
+  </table>
+  </div>
+
+  <h2>6. Where to change things</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>File</th><th>Change it to…</th></tr>
+    <tr><td><code>server/sensor_tables.js</code></td><td>Link a map sensor (its <code>id</code> in <code>sensor.geojson</code>) to its database table.</td></tr>
+    <tr><td><code>src/decision_config.js</code></td><td>Change the irrigation decision thresholds (dryness, rain, ETo, tanks).</td></tr>
+    <tr><td><code>src/roles_config.js</code></td><td>Change what each role may see.</td></tr>
+    <tr><td><code>src/dashboard_config.js</code></td><td>Change the server address, data files and the weather-station rings.</td></tr>
+  </table>
+  </div>
+
+  <h2>7. Dashboard files</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>File</th><th>What it does</th></tr>
+    <tr><td><code>src/dashboard.html / .css</code></td><td>The dashboard page with the 2D Map / 3D Farm switch</td></tr>
+    <tr><td><code>src/dashboard.js</code></td><td>Switches views; loads Cesium only when the 3D farm is opened</td></tr>
+    <tr><td><code>src/dashboard_2d.js</code></td><td>2D map: statistics, filters, popups, legend, drone image time slider</td></tr>
+    <tr><td><code>src/main_cesium.js</code></td><td>3D farm: terrain, buildings, roads, trees, tanks, sensors</td></tr>
+    <tr><td><code>src/dashboard_3d.js</code></td><td>3D readings panel (click a sensor or the AWS)</td></tr>
+    <tr><td><code>src/dashboard_3d_layers.js</code></td><td>Soil pillars, drone imagery on the terrain, weather station, map key</td></tr>
+    <tr><td><code>src/dashboard_3d_decision.js</code></td><td>Smart irrigation decision (IDW, rules, decision card)</td></tr>
+    <tr><td><code>src/auth.js</code></td><td>Sign-in dialog and hiding what a role may not see</td></tr>
+    <tr><td><code>src/tour.js</code></td><td>Guided tour for the 2D and 3D views</td></tr>
+    <tr><td><code>server/server.js</code></td><td>Node server between the dashboard and PostGIS; checks sign-in</td></tr>
+  </table>
+  </div>
+</main>
+</body>
+</html>
