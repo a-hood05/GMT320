@@ -36,6 +36,7 @@
 
     <div class="topbar-right">
       <span id="coords" class="coords">Move the mouse over the map</span>
+      <button id="btn-login" class="login-btn" data-tour="login">🔒 Sign in</button>
       <button id="btn-tour" class="tour-btn" title="Show the guided tour">? Tour</button>
       <a class="back-link" href="../index.html">← Back to website</a>
     </div>
@@ -56,7 +57,7 @@
         <div class="stat"><strong id="statGutters">0</strong><span>With gutters</span></div>
         <div class="stat"><strong id="statTanks">0</strong><span>Rainwater tanks</span></div>
         <div class="stat"><strong id="statCapacity">0</strong><span>Tank capacity (L)</span></div>
-        <div class="stat"><strong id="statSensors">0</strong><span>Sensors shown</span></div>
+        <div class="stat" data-need="locations"><strong id="statSensors">0</strong><span>Sensors shown</span></div>
         <div class="stat"><strong id="statTrees">0</strong><span>Pecan trees</span></div>
         <div class="stat"><strong id="statIrrigation">0</strong><span>Irrigation (m)</span></div>
         <div class="stat"><strong id="statRoads">0</strong><span>Roads (m)</span></div>
@@ -85,7 +86,7 @@
       </div>
 
       <!-- SENSOR CONTROLS -->
-      <div data-tour="sensors2d">
+      <div data-tour="sensors2d" data-need="locations">
       <h4 class="section-title">Sensors</h4>
       <label class="field">Sensor type
         <select id="sensorFilter"><option value="All">All</option></select>
@@ -111,7 +112,7 @@
       <div id="map2d"></div>
 
       <!-- Remote sensing time slider (top of the map) -->
-      <div id="ndviBar" class="float-card">
+      <div id="ndviBar" class="float-card" data-need="imagery">
         <div class="ndvi-head">
           <div class="index-switch" role="tablist" aria-label="Vegetation index">
             <button data-index="ndvi" class="active">NDVI</button>
@@ -139,7 +140,7 @@
       </div>
 
       <!-- Index legend + trend (bottom left of the map) -->
-      <div id="ndviLegend" class="float-card">
+      <div id="ndviLegend" class="float-card" data-need="imagery">
         <div class="legend-title" id="legend-title">NDVI</div>
         <div class="legend-ramp"></div>
         <div class="legend-labels"><span id="leg-min">-0.2</span><span id="leg-mid"></span><span id="leg-max">0.9</span></div>
@@ -167,11 +168,12 @@
       <label><input type="checkbox" id="toggle-irrigation" checked> Irrigation</label>
       <label><input type="checkbox" id="toggle-trees"      checked> Trees</label>
       <label><input type="checkbox" id="toggle-tanks"      checked> Rainwater tanks</label>
-      <label><input type="checkbox" id="toggle-sensors"    checked> Sensors</label>
-      <label><input type="checkbox" id="toggle-profiles"   checked> Soil moisture profiles</label>
-      <label><input type="checkbox" id="toggle-aws"        checked> Weather station (AWS)</label>
-      <label><input type="checkbox" id="toggle-awsrange"> AWS representative area</label>
+      <label data-need="locations"><input type="checkbox" id="toggle-sensors"    checked> Sensors</label>
+      <label data-need="soil"><input type="checkbox" id="toggle-profiles"   checked> Soil moisture profiles</label>
+      <label data-need="locations"><input type="checkbox" id="toggle-aws"        checked> Weather station (AWS)</label>
+      <label data-need="locations"><input type="checkbox" id="toggle-awsrange"> AWS representative area</label>
 
+      <div data-need="imagery">
       <h3 class="panel-sub">Drone imagery</h3>
       <div class="index-switch small" id="img3d-index">
         <button data-index="off" class="active">Off</button>
@@ -181,9 +183,10 @@
       </div>
       <select id="img3d-date" class="panel-select" disabled></select>
       <input type="range" id="img3d-opacity" min="0" max="100" value="80" title="Opacity" />
+      </div>
 
       <button id="btn-zoom" class="ghost-btn">Zoom to farm</button>
-      <p class="hint">Click a sensor, soil pillar or the AWS to see its recordings.</p>
+      <p class="hint" data-need="locations">Click a sensor, soil pillar or the AWS to see its recordings.</p>
     </div>
 
     <div id="mapKey" class="float-card">
@@ -204,18 +207,20 @@
       <div class="keyRow"><span class="swatch swatch-block" style="background:#6f6f6f"></span>Unknown</div>
       <div class="keyTitle key-gap">POINTS</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#0d6efd"></span>Rainwater tank (size = capacity)</div>
-      <div class="keyRow"><span class="swatch swatch-dot" style="background:#ff0000"></span>Sensor (no data)</div>
+      <div class="keyRow" data-need="locations"><span class="swatch swatch-dot" style="background:#ff0000"></span>Sensor</div>
+      <div class="keyRow" data-need="locations"><span class="swatch swatch-dot" style="background:#00e5ff"></span>Weather station (AWS)</div>
+      <div data-need="soil">
       <div class="keyTitle key-gap">SOIL MOISTURE (latest)</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#2b8cbe"></span>Wet</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#41ab5d"></span>Moist</div>
       <div class="keyRow"><span class="swatch swatch-dot" style="background:#e6550d"></span>Dry</div>
       <div class="key-note">Pillars: top = 20 cm, middle = 50 cm, bottom = 80 cm depth</div>
-      <div class="keyRow"><span class="swatch swatch-dot" style="background:#00e5ff"></span>Weather station (AWS)</div>
+      </div>
       <div class="keyTitle key-gap">IRRIGATION LINES</div>
       <div class="keyRow"><span class="swatch" style="background:#e03b3b"></span>Irrigate</div>
       <div class="keyRow"><span class="swatch" style="background:#f2c12e"></span>Monitor</div>
       <div class="keyRow"><span class="swatch" style="background:#41ab5d"></span>No irrigation needed</div>
-      <div class="keyRow"><span class="swatch" style="background:#3b82f6"></span>Postpone (rain expected)</div>
+      <div class="keyRow"><span class="swatch" style="background:#3b82f6"></span>Postpone (raining / rain expected)</div>
       <div id="key-imagery" class="key-imagery" hidden>
         <div class="keyTitle key-gap" id="key-img-title">NDVI</div>
         <div class="legend-ramp" id="key-img-ramp"></div>
@@ -233,7 +238,7 @@
           <button id="dc-toggle" title="Show / hide">▾</button>
         </div>
       </div>
-      <label class="dc-surface"><input type="checkbox" id="dc-surface" checked /> Show interpolated soil dryness (IDW)</label>
+      <label class="dc-surface" data-need="soil"><input type="checkbox" id="dc-surface" checked /> Show interpolated soil dryness (IDW)</label>
       <div id="dc-body"><p class="dc-muted">Open the 3D farm to calculate…</p></div>
     </section>
 
@@ -275,6 +280,8 @@
   </main>
 
   <script src="dashboard_config.js"></script>
+  <script src="roles_config.js"></script>
+  <script src="auth.js"></script>
   <script src="decision_config.js"></script>
   <script src="dashboard_2d.js"></script>
   <script src="dashboard.js"></script>

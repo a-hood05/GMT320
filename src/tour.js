@@ -40,6 +40,17 @@
              <b>irrigation decision</b>.`,
     },
     {
+      target: '[data-tour="login"]',
+      title: "Sign in for more",
+      text: () => AUTH.role === "public"
+        ? `You're viewing the dashboard as the <b>public</b>: the farm layout and the irrigation decision.
+           <br><br><b>Researchers</b>, <b>farm operations staff</b>, the <b>farm manager</b> and the
+           <b>master admin</b> sign in here to see the sensors and data their role needs
+           (role-based access control).`
+        : `You're signed in as <b>${AUTH.label}</b>. The dashboard only shows what your role may see.
+           Click here to sign out.`,
+    },
+    {
       target: '[data-tour="stats"]',
       title: "Farm statistics",
       text: `Quick numbers for the farm. They <b>update as you filter</b> - for example "Buildings shown"
@@ -54,6 +65,7 @@
     },
     {
       target: '[data-tour="sensors2d"]',
+      need: "locations",
       title: "Sensors on the farm",
       text: `Show one sensor type at a time. <b>Chameleon</b> sensors measure soil moisture,
              <b>TEROS 21</b> sensors measure soil water potential, and the <b>water level</b>
@@ -67,6 +79,7 @@
     },
     {
       target: "#ndviBar",
+      need: "imagery",
       title: "Drone images through time",
       text: `Multispectral drone flights over the orchard. Use the slider or <b>▶</b> to move between dates.
              <ul>
@@ -78,6 +91,7 @@
     },
     {
       target: "#ndviLegend",
+      need: "imagery",
       title: "Reading the colours",
       text: `The legend explains the colours of the selected image. The small chart shows the
              <b>orchard average</b> for every flight, so you can see the trend over time.`,
@@ -112,13 +126,15 @@
     },
     {
       target: "#panel",
-      title: "Layers and drone imagery",
-      text: `Turn layers on and off here. Under <b>Drone imagery</b> you can drape the same NDVI, NDRE
-             and temperature images from the 2D map over the 3D terrain.`,
+      title: "Layers",
+      text: () => `Turn layers on and off here.` + (AUTH.can("imagery")
+        ? ` Under <b>Drone imagery</b> you can drape the same NDVI, NDRE and temperature images from
+            the 2D map over the 3D terrain.` : ""),
     },
     {
       target: "#mapKey",
       before: () => { const k = document.getElementById("mapKey"); if (k) k.classList.remove("collapsed"); },
+      need: "soil",
       title: "Soil moisture at a glance",
       text: `Each Chameleon sensor has a <b>pillar of 3 blocks</b>: top = 20 cm deep, middle = 50 cm,
              bottom = 80 cm. Colours come from the sensor's own reading:
@@ -134,24 +150,31 @@
       text: `For every irrigation row the dashboard decides:
              <b style="color:#ff6b6b">Irrigate</b>, <b style="color:#f2c12e">Monitor</b>,
              <b style="color:#41ab5d">No irrigation needed</b> or
-             <b style="color:#6ea8ff">Postpone (rain expected)</b>.
+             <b style="color:#6ea8ff">Postpone (rain)</b>.
              <ol>
                <li>Sensor readings → a <b>dryness score</b> per sensor</li>
                <li><b>IDW interpolation</b> spreads the scores over the orchard (the coloured surface)</li>
                <li>Each row gets the average dryness along its length</li>
-               <li><b>Rain forecast</b>, <b>evapotranspiration (ETo)</b> and <b>tank levels</b> adjust it</li>
+               <li><b>Weather now</b> (raining? rain in the last 24 h), <b>rain forecast</b>,
+                   <b>evapotranspiration (ETo)</b> and <b>tank levels</b> adjust it</li>
              </ol>
+             Everyone sees the decision - signing in is not needed.
              Click a row or an irrigation line to see <b>why</b>.`,
       before: () => { const c = document.getElementById("decisionCard"); if (c) c.classList.remove("collapsed"); },
     },
     {
       title: "Click to see the data",
-      text: `<ul>
+      text: () => AUTH.role === "public"
+        ? `Click an <b>irrigation line</b> to see the decision for that row and the reasons.
+           <br><br>Sensor locations and recordings are only shown after <b>signing in</b>
+           (top right). That's it - enjoy exploring!`
+        : `<ul>
                <li><b>Sensor or pillar</b> - its recordings over 1, 7 or 30 days, with a chart.</li>
                <li><b>AWS</b> (the cyan weather station) - its temperature and rain, plus rings showing
                    how far its weather applies (100 m and 3 km, WMO guidelines).</li>
                <li><b>Irrigation line</b> - the decision for that row and the reasons.</li>
              </ul>
+             You only see the recordings your role (<b>${AUTH.label}</b>) may see - others show a 🔒.
              The sensor data needs our database server to be running. That's it - enjoy exploring!`,
       last: true,
     },
@@ -181,7 +204,8 @@
   }
 
   function start(which) {
-    steps = which === "3d" ? TOUR_3D : TOUR_2D;
+    // RBAC: leave out steps about things this role can't see
+    steps = (which === "3d" ? TOUR_3D : TOUR_2D).filter((s) => !s.need || AUTH.can(s.need));
     seenKey = which === "3d" ? SEEN_3D : SEEN_2D;
     index = 0;
     document.body.classList.add("tour-on");
@@ -204,7 +228,7 @@
     pop.innerHTML = `
       <div class="tour-count">${step.welcome ? "" : `Step ${index} of ${total - 1}`}</div>
       <h3>${step.title}</h3>
-      <div class="tour-text">${step.text}</div>
+      <div class="tour-text">${typeof step.text === "function" ? step.text() : step.text}</div>
       <div class="tour-dots">${steps.map((_, i) => `<span class="${i === index ? "on" : ""}"></span>`).join("")}</div>
       <div class="tour-actions">
         <button class="tour-skip">${step.last ? "" : step.welcome ? "Skip for now" : "Skip tour"}</button>

@@ -97,6 +97,7 @@
 
   function tankPercent(tanks) {
     if (!tanks || !D.TANK_FULL_LEVEL) return null;
+    if (typeof tanks.percent === "number") return (tanks.percent / D.TANK_FULL_LEVEL) * 100;   // role without "water": average only
     const levels = [tanks.level1, tanks.level2].filter((v) => typeof v === "number");
     if (!levels.length) return null;
     return (levels.reduce((a, b) => a + b, 0) / levels.length / D.TANK_FULL_LEVEL) * 100;
@@ -110,7 +111,7 @@
     let inputs, sensorsGj, irrigationGj;
     try {
       [inputs, sensorsGj, irrigationGj] = await Promise.all([
-        fetch(`${cfg.API_BASE}/api/decision-inputs`).then((r) => r.json()),
+        AUTH.fetch(`${cfg.API_BASE}/api/decision-inputs`).then((r) => r.json()),   // trimmed by the server per role
         fetch(cfg.FILES.sensors).then((r) => r.json()),
         fetch(cfg.FILES.irrigation).then((r) => r.json()),
       ]);
@@ -193,7 +194,7 @@
     }
     ctx.putImageData(img, 0, 0);
     state.surface = { url: canvas.toDataURL("image/png"), rect: Cesium.Rectangle.fromDegrees(w, s, e, n) };
-    if ($("dc-surface").checked) showSurface(true);
+    if ($("dc-surface").checked && AUTH.can("soil")) showSurface(true);   // RBAC: surface = interpolated research data
   }
 
   // 0 wet (blue) -> 1 moist (green) -> 2 dry (orange)
@@ -283,6 +284,7 @@
 
   function tankText(tanks, pct) {
     if (!tanks || tanks.error) return "not available";
+    if (tanks.locked) return `${pct !== null && pct < D.TANK_LOW_PERCENT ? "low" : "enough"} rainwater <span class="dc-muted">(🔒 levels: farm staff / manager)</span>`;
     const levels = [tanks.level1, tanks.level2];
     if (!D.TANK_FULL_LEVEL) return `level ${levels.filter((v) => v !== null).join(" / ")} (full level not set)`;
     const parts = levels.map((v, i) => {

@@ -18,6 +18,7 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import crypto from "node:crypto";
 import { SENSOR_TABLES } from "./sensor_tables.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -62,7 +63,76 @@ pool?.on("error", (err) => console.error("Database pool error:", err.message));
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use(express.static(ROOT));   // serves index.html, src/, etc.
+
+
+// ---------------------------------------------------------------------
+// ROLE-BASED ACCESS CONTROL
+// Who may see what: src/roles_config.js (the same file the dashboard uses).
+// Passwords: server/.env -> PASS_STAFF, PASS_MANAGER, PASS_RESEARCHER, PASS_ADMIN
+// Signing in returns a token (signed with AUTH_SECRET, valid 8 h). The browser sends
+// it with every request, and each endpoint checks the role's permissions,
+// so typing an API address into the browser can't get around the rules.
+// ---------------------------------------------------------------------
+const { ROLES_CONFIG: ROLES, PERMISSION_LABELS } = new Function(
+  fs.readFileSync(path.join(ROOT, "src", "roles_config.js"), "utf8") + "; return { ROLES_CONFIG, PERMISSION_LABELS };")();
+export { ROLES };
+const DEMO_PASSWORDS = { PASS_STAFF: "staff2026", PASS_MANAGER: "manager2026", PASS_RESEARCHER: "research2026", PASS_ADMIN: "admin2026" };
+const AUTH_SECRET = env("AUTH_SECRET") || crypto.randomBytes(32).toString("hex");   // random = everyone signs in again after a restart
+const TOKEN_HOURS = 8;
+const usingDemoPasswords = Object.keys(DEMO_PASSWORDS).filter((k) => !env(k));
+if (usingDemoPasswords.length) {
+  console.warn(`! No ${usingDemoPasswords.join(", ")} in server/.env - using the demo passwords from server/.env.example`);
+}
+
+const sign = (data) => crypto.createHmac("sha256", AUTH_SECRET).update(data).digest("base64url");
+const sameText = (a, b) => {
+  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+};
+
+export function makeToken(role, now = Date.now()) {
+  const body = Buffer.from(JSON.stringify({ role, exp: now + TOKEN_HOURS * 3600000 })).toString("base64url");
+  return body + "." + sign(body);
+}
+
+// -> role name ("public" when there is no valid token)
+export function roleOf(req) {
+  const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const [body, sig] = token.split(".");
+  if (!body || !sig || !sameText(sig, sign(body))) return "public";
+  try {
+    const { role, exp } = JSON.parse(Buffer.from(body, "base64url").toString());
+    return ROLES[role] && exp > Date.now() ? role : "public";
+  } catch { return "public"; }
+}
+export const can = (role, permission) => (ROLES[role]?.can || []).includes(permission);
+
+// Stop the request with 403 when the role lacks the permission
+function allowed(req, res, permission) {
+  const role = roleOf(req);
+  if (can(role, permission)) return true;
+  res.status(403).json({ error: `Signed in as ${ROLES[role].label}: you don't have access to ${PERMISSION_LABELS[permission]}.`, locked: true, role });
+  return false;
+}
+
+app.post("/api/login", (req, res) => {
+  const { role, password } = req.body || {};
+  const r = ROLES[role];
+  if (!r || !r.passwordKey) return res.status(400).json({ error: "Choose a role to sign in as." });
+  const expected = env(r.passwordKey) || DEMO_PASSWORDS[r.passwordKey];
+  if (!sameText(password || "", expected)) return res.status(401).json({ error: "Wrong password for " + r.label + "." });
+  res.json({ role, label: r.label, can: r.can, token: makeToken(role), hours: TOKEN_HOURS });
+});
+
+app.get("/api/me", (req, res) => {
+  const role = roleOf(req);
+  res.json({ role, label: ROLES[role].label, can: ROLES[role].can });
+});
+
+// Which permission a sensor's recordings need: the SIEMENS water table -> "water", the rest -> "soil"
+export const permissionForSensor = (id) => (SENSOR_TABLES[id]?.table === "water_sensors_data" ? "water" : "soil");
 
 
 // ---------------------------------------------------------------------
@@ -98,6 +168,7 @@ async function latestOfAllSensors() {
 }
 
 app.get("/api/sensors/latest", async (req, res) => {
+  if (!allowed(req, res, "soil")) return;
   if (!pool) return res.json({ source: "demo", sensors: [] });
   res.json({ source: "postgis", sensors: await latestOfAllSensors() });
 });
@@ -224,7 +295,19 @@ app.get("/api/decision-inputs", async (req, res) => {
   const tanks = waterRows.length ? { time: waterRows[0].time, level1: pick("level1"), level2: pick("level2") }
                                  : { error: sensors.find((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data")?.error || "no tank data" };
 
-  res.json({ source: "postgis", generated: new Date().toISOString(), sensors, forecast, eto, tanks, current });
+  // Everyone sees the decision, but only the inputs their role allows:
+  // without "soil" only the Wet/Moist/Dry status per sensor is sent (what the decision needs),
+  // without "water" only the tanks' average % (for the "insufficient rainwater" flag).
+  const role = roleOf(req);
+  const soilOk = can(role, "soil"), waterOk = can(role, "water");
+  const sensorsOut = sensors
+    .filter((s) => permissionForSensor(s.id) === "soil")
+    .map((s) => (soilOk ? s : { id: s.id, time: s.time, statuses: s.statuses, error: s.error ? "unavailable" : undefined }));
+  const tankLevels = [tanks.level1, tanks.level2].filter((v) => typeof v === "number");
+  const tanksOut = waterOk || tanks.error ? tanks
+    : { time: tanks.time, percent: tankLevels.length ? tankLevels.reduce((a, b) => a + b, 0) / tankLevels.length : null, locked: true };
+  res.json({ source: "postgis", generated: new Date().toISOString(), role,
+             sensors: sensorsOut, forecast, eto, tanks: tanksOut, current });
 });
 
 
@@ -259,6 +342,7 @@ export function awsRows(rows) {
 }
 
 app.get("/api/aws/readings", async (req, res) => {
+  if (!allowed(req, res, "aws")) return;
   if (!pool) return res.status(503).json({ error: "Database not connected" });
   const days = req.query.days === "all" ? null : Math.min(Math.max(Number(req.query.days) || 7, 1), 3650);
   try {
@@ -283,6 +367,7 @@ app.get("/api/sensors/:id/readings", async (req, res) => {
   const sensorId = String(req.params.id);
   const days = req.query.days === "all" ? null : Math.min(Math.max(Number(req.query.days) || 7, 1), 3650);
   const cfg = SENSOR_TABLES[sensorId];
+  if (!allowed(req, res, permissionForSensor(sensorId))) return;
 
   if (!cfg) {
     return res.json({ source: "none", sensor_id: sensorId, columns: [], rows: [],

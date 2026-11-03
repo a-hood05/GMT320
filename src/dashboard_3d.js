@@ -85,8 +85,21 @@
 
     const url = sensor.url(days);
     try {
-      const res = await fetch(url);
+      const res = await AUTH.fetch(url);      // auth.js: sends the sign-in token
       const data = await res.json();
+      if (sensor !== current) return;
+      if (res.status === 401 || res.status === 403) {   // RBAC: this role may not see these recordings
+        if (chart) { chart.destroy(); chart = null; }
+        $("sd-var-wrap").style.display = "none";
+        $("sd-source").className = "source-pill locked";
+        $("sd-source").textContent = "🔒 Not available for your role";
+        $("sd-status").className = "drawer-status";
+        $("sd-status").innerHTML = `${data.error || "Not available for your role."}
+          ${AUTH.role === "public" ? '<br><button class="ghost-btn sd-signin" type="button">Sign in</button>' : ""}`;
+        const b = $("sd-status").querySelector(".sd-signin");
+        if (b) b.addEventListener("click", AUTH.openSignIn);
+        return;
+      }
       if (!res.ok) throw new Error(data.error || res.statusText);
       if (sensor !== current) return;            // user clicked another sensor meanwhile
 

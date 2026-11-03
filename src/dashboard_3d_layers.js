@@ -44,10 +44,11 @@
   }
 
   async function buildProfiles() {
+    if (!AUTH.can("soil")) return;            // RBAC: soil recordings are for researchers + admin
     const sensorsDs = await waitFor(() => layers.sensors);
     let data;
     try {
-      const res = await fetch(`${cfg.API_BASE}/api/sensors/latest`);
+      const res = await AUTH.fetch(`${cfg.API_BASE}/api/sensors/latest`);
       data = await res.json();
     } catch (err) {
       // server not running (yet) - try again in 10 s, so starting the server later just works
@@ -159,7 +160,7 @@
     viewer.scene.requestRender();
   }
 
-  fetch(cfg.NDVI_MANIFEST)
+  if (AUTH.can("imagery")) fetch(cfg.NDVI_MANIFEST)   // RBAC: drone imagery for researchers + admin
     .then((r) => r.json())
     .then((m) => {
       const dates = (m.dates || []).slice().sort((a, b) => (a.id || a.date).localeCompare(b.id || b.date));
@@ -191,7 +192,7 @@
   viewer.dataSources.add(awsRange);
   awsRange.show = false;
 
-  fetch(cfg.FILES.aws)
+  if (AUTH.can("locations")) fetch(cfg.FILES.aws)     // RBAC: the public doesn't see where the AWS is
     .then((r) => r.json())
     .then((gj) => {
       const f = gj.features[0];

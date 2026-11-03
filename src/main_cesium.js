@@ -368,7 +368,8 @@ loadLayer("tanks", FILES.tanks, (entity) => {
 // ---------------------------------------------------------------------
 // STEP 9 - Sensors (soil moisture, weather, etc.)
 // ---------------------------------------------------------------------
-loadLayer("sensors", FILES.sensors, (entity) => {
+// RBAC (auth.js / roles_config.js): the public doesn't see where the sensors are
+if (typeof AUTH === "undefined" || AUTH.can("locations")) loadLayer("sensors", FILES.sensors, (entity) => {
   stylePoint(entity, Cesium.Color.RED, 12);
 
   const name = getProp(entity, ["Name", "name", "ID", "id", "Sensor_ID", "type"], null);

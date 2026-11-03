@@ -64,7 +64,9 @@ Promise.all([
 ]).then(function (d) {
   buildDashboard({
     aoiData: d[0], buildingsData: d[1], roadsData: d[2], irrigationData: d[3],
-    tanksData: d[4], sensorsData: d[5], treesData: d[6]
+    tanksData: d[4], treesData: d[6],
+    // RBAC (auth.js): sensor locations only for signed-in roles with "locations"
+    sensorsData: AUTH.can('locations') ? d[5] : { type: 'FeatureCollection', features: [] }
   });
 }).catch(function (err) {
   console.error(err);
@@ -339,9 +341,9 @@ function buildDashboard(data) {
     'Roads': roadsLayer,
     'Irrigation': irrigationLayer,
     'Rainwater tanks': tanksLayer,
-    'Sensors': sensorsLayer,
     'Trees': treesLayer
   };
+  if (AUTH.can('locations')) overlayMaps['Sensors'] = sensorsLayer;
 
   L.control.layers(baseMaps, overlayMaps, { collapsed: true, position: 'topright' }).addTo(map);
 
@@ -387,9 +389,11 @@ function buildDashboard(data) {
     html += '<i class="line" style="background:#00bcd4"></i>Irrigation<br>';
     html += '<i class="line" style="background:#ffd400"></i>Farm boundary<br>';
 
-    html += '<b>Sensors</b><br>';
-    for (var s in sensorColours) {
-      html += '<i class="dot" style="background:' + sensorColours[s] + '"></i>' + s + '<br>';
+    if (AUTH.can('locations')) {
+      html += '<b>Sensors</b><br>';
+      for (var s in sensorColours) {
+        html += '<i class="dot" style="background:' + sensorColours[s] + '"></i>' + s + '<br>';
+      }
     }
 
     html += '<b>Other</b><br>';
@@ -567,6 +571,7 @@ function buildDashboard(data) {
                   "ndre": { ... } } ] }
    ========================================================= */
 (function () {
+  if (!AUTH.can('imagery')) return;   // RBAC: drone imagery is for researchers + admin
   var $ = function (id) { return document.getElementById(id); };
 
   var DEFAULT_INDICES = {
