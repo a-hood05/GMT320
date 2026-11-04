@@ -16,14 +16,19 @@
 // " 9/22/2026" + "13:45:00"  ->  2026-09-22 13:45
 const WATER_TIME = `(to_date(NULLIF(trim("date"), ''), 'MM/DD/YYYY') + NULLIF(trim("loc time"), '')::time)`;
 
+// Tank level columns. The logger has used different names over time
+// ("level1", and now "leve1 (as %)" / "level2 (as %)"), so every spelling is accepted.
+export const TANK1 = { label: "Tank 1 level (%)", names: ["leve1 (as %)", "level1 (as %)", "level1", "leve1"] };
+export const TANK2 = { label: "Tank 2 level (%)", names: ["level2 (as %)", "leve2 (as %)", "level2", "leve2"] };
+
 export const SENSOR_TABLES = {
 
   // ---------- Water-level sensors at the JoJo tanks (confirmed) ----------
   // The logger stores the date month-first with a leading space (" 9/22/2026"),
   // so we tell the database exactly how to read it.
-  "19": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level1"] },
-  "20": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level2"] },
-  "21": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: ["level1", "level2"] },
+  "19": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: [TANK1] },
+  "20": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: [TANK2] },
+  "21": { table: "water_sensors_data", time: ["date", "loc time"], timeSql: WATER_TIME, columns: [TANK1, TANK2] },
 
   // ---------- Chameleon soil-moisture sensors (serial numbers from the team) ----------
   // D967 is at map point 3 (confirmed by the team, Nov 2026).

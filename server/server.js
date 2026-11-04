@@ -19,7 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import crypto from "node:crypto";
-import { SENSOR_TABLES } from "./sensor_tables.js";
+import { SENSOR_TABLES, TANK1, TANK2 } from "./sensor_tables.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -205,10 +205,17 @@ async function latestOfAllSensors() {
         return { id, table: tableName(cfg), time: shaped.rows[0].time, statuses: shaped.statuses, values: shaped.rows[0] };
       }
       const TS = timeSql(cfg);
-      const r = await pool.query(`SELECT *, ${TS} AS __time FROM ${q(cfg.table)} WHERE ${TS} IS NOT NULL ORDER BY __time DESC LIMIT 1`);
+      // the last 50 recordings, so one blank row from the logger doesn't hide the latest value
+      const r = await pool.query(`SELECT *, ${TS} AS __time FROM ${q(cfg.table)} WHERE ${TS} IS NOT NULL ORDER BY __time DESC LIMIT 50`);
       if (!r.rows.length) return { id, table: cfg.table, empty: true };
-      const shaped = shapeRows(id, cfg, r.rows, r.fields.map((f) => f.name));
-      return { id, table: cfg.table, time: shaped.rows[0].time, statuses: shaped.statuses, values: shaped.rows[0] };
+      const shaped = shapeRows(id, cfg, r.rows.reverse(), r.fields.map((f) => f.name));
+      const values = {};
+      let time = null;
+      for (const row of shaped.rows) {
+        for (const c of shaped.columns) if (row[c] !== null && row[c] !== undefined) { values[c] = row[c]; time = row.time; }
+      }
+      if (!time) time = shaped.rows[shaped.rows.length - 1]?.time;
+      return { id, table: cfg.table, time, statuses: shaped.statuses, values: { time, ...values } };
     } catch (err) {
       return { id, table: tableName(cfg), error: err.message };
     }
@@ -341,8 +348,10 @@ app.get("/api/decision-inputs", async (req, res) => {
   const current = pickCurrent(awsNow && !awsNow.error ? awsNow : null, modelNow && !modelNow.error ? modelNow : null)
                || { error: [awsNow?.error, modelNow?.error].filter(Boolean).join("; ") || "no current weather data" };
   const waterRows = sensors.filter((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data" && s.values);
-  const pick = (k) => waterRows.map((s) => s.values[k]).find((v) => v !== undefined && v !== null) ?? null;
-  const tanks = waterRows.length ? { time: waterRows[0].time, level1: pick("level1"), level2: pick("level2") }
+  const nk = (t) => String(t).toLowerCase().replace(/[^a-z0-9]/g, "");
+  const pick = (k) => waterRows.map((s) => Object.entries(s.values).find(([c]) => nk(c) === nk(k))?.[1])
+                               .find((v) => v !== undefined && v !== null) ?? null;
+  const tanks = waterRows.length ? { time: waterRows[0].time, level1: pick(TANK1.label), level2: pick(TANK2.label) }
                                  : { error: sensors.find((s) => SENSOR_TABLES[s.id]?.table === "water_sensors_data")?.error || "no tank data" };
 
   // Everyone sees the decision, but only the inputs their role allows:
@@ -461,7 +470,19 @@ export function toNumber(v) {
 // Turn database rows into { time, <numeric columns> } for the chart
 export function shapeRows(sensorId, cfg, rows, fieldNames) {
   const timeCols = new Set([].concat(cfg.time || "time"));
-  const candidates = cfg.columns || fieldNames.filter((f) => f !== "__time" && !SKIP_COLUMNS.has(f.toLowerCase()) && !timeCols.has(f));
+  // configured columns are matched loosely ("level1" also finds "Level1" or "level 1")
+  const norm = (t) => String(t).toLowerCase().replace(/[^a-z0-9]/g, "");
+  // A configured column is a name, or { label, names: [...] } to accept several spellings
+  // and show a friendly name (e.g. the logger writes "leve1 (as %)" -> "Tank 1 level (%)").
+  const labelOf = {};
+  const candidates = cfg.columns
+    ? cfg.columns.map((c) => {
+        const names = typeof c === "string" ? [c] : c.names;
+        const found = fieldNames.find((f) => names.some((n) => norm(f) === norm(n))) || names[0];
+        labelOf[found] = typeof c === "string" ? found : c.label;
+        return found;
+      })
+    : fieldNames.filter((f) => f !== "__time" && !SKIP_COLUMNS.has(f.toLowerCase()) && !timeCols.has(f));
 
   // a column is plotted if most of its filled-in values are numbers
   // (text like "12,5" or "12.5 kPa" is converted; blanks and "NaN" are skipped)
@@ -482,15 +503,15 @@ export function shapeRows(sensorId, cfg, rows, fieldNames) {
     table: cfg.table,
     sensor_id: sensorId,
     statuses,
-    columns: numeric,
+    columns: numeric.map((c) => labelOf[c] || c),
     rows: rows.map((r) => {
       const t = r.__time;
       const out = { time: t instanceof Date ? t.toISOString() : t };
-      for (const c of numeric) out[c] = toNumber(r[c]);
+      for (const c of numeric) out[labelOf[c] || c] = toNumber(r[c]);
       return out;
     }),
     message: rows.length
-      ? (numeric.length ? undefined : `Found ${rows.length} recordings, but no number columns in ${cfg.table} (columns: ${candidates.join(", ")}).`)
+      ? (numeric.length ? undefined : `Found ${rows.length} recordings, but ${cfg.columns ? cfg.columns.map((c) => (typeof c === "string" ? c : c.label)).join(" / ") : "the columns"} have no numbers in this period. Columns in ${cfg.table}: ${fieldNames.filter((f) => f !== "__time").join(", ")}.`)
       : `No recordings in ${cfg.table} for this period.`,
   };
 }
