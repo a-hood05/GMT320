@@ -153,16 +153,64 @@ app.get("/api/health", async (req, res) => {
 // Latest recording of EVERY linked sensor (used to colour the 3D sensors)
 // -> [{ id, table, time, statuses: {"20 cm status": "Dry"...}, values: {...} }]
 // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// Sensors whose recordings are spread over several tables, one per logger port
+// (the TEROS 21 "treatment" loggers). Each table is read, its time column is
+// parsed in JavaScript (any date format: "08/19/2026", "08/19/2026 1:30 PM", a
+// real timestamp...), and the ports are joined on time with columns named
+// "Port 1 · <column>", so the dashboard can chart them like any other sensor.
+// ---------------------------------------------------------------------
+export function mergePorts(cfg, perTable) {
+  const timeCol = String(cfg.time || "timestamps");
+  const byTime = new Map(), fieldNames = [];
+  perTable.forEach(({ label, rows, fields }) => {
+    const cols = fields.filter((f) => f !== timeCol && !SKIP_COLUMNS.has(f.toLowerCase()) && !/^(id|fid|record)$/i.test(f));
+    cols.forEach((c) => fieldNames.push(`${label} · ${c}`));
+    for (const r of rows) {
+      const raw = r[timeCol];
+      const t = raw instanceof Date ? raw : parseDate(raw, cfg.dayFirst);
+      if (!t || isNaN(t)) continue;
+      const key = +t;
+      if (!byTime.has(key)) byTime.set(key, { __time: t });
+      const row = byTime.get(key);
+      for (const c of cols) row[`${label} · ${c}`] = r[c];
+    }
+  });
+  const rows = [...byTime.values()].sort((a, b) => a.__time - b.__time);
+  return { rows, fieldNames };
+}
+
+async function readPorts(cfg, days) {
+  const perTable = await Promise.all(cfg.tables.map(async ({ table, label }) => {
+    const r = await pool.query(`SELECT * FROM ${q(table)}`);
+    return { label, rows: r.rows, fields: r.fields.map((f) => f.name) };
+  }));
+  let { rows, fieldNames } = mergePorts(cfg, perTable);
+  if (days && rows.length) {
+    const from = +rows[rows.length - 1].__time - days * 86400000;
+    rows = rows.filter((r) => +r.__time >= from);
+  }
+  return { rows: rows.slice(-MAX_ROWS), fieldNames };
+}
+
+const tableName = (cfg) => cfg.table || (cfg.tables || []).map((t) => t.table).join(" + ");
+
 async function latestOfAllSensors() {
   return Promise.all(Object.entries(SENSOR_TABLES).map(async ([id, cfg]) => {
     try {
+      if (cfg.tables) {
+        const { rows, fieldNames } = await readPorts(cfg, null);
+        if (!rows.length) return { id, table: tableName(cfg), empty: true };
+        const shaped = shapeRows(id, { ...cfg, table: tableName(cfg), time: "__time" }, rows.slice(-1), fieldNames);
+        return { id, table: tableName(cfg), time: shaped.rows[0].time, statuses: shaped.statuses, values: shaped.rows[0] };
+      }
       const TS = timeSql(cfg);
       const r = await pool.query(`SELECT *, ${TS} AS __time FROM ${q(cfg.table)} WHERE ${TS} IS NOT NULL ORDER BY __time DESC LIMIT 1`);
       if (!r.rows.length) return { id, table: cfg.table, empty: true };
       const shaped = shapeRows(id, cfg, r.rows, r.fields.map((f) => f.name));
       return { id, table: cfg.table, time: shaped.rows[0].time, statuses: shaped.statuses, values: shaped.rows[0] };
     } catch (err) {
-      return { id, table: cfg.table, error: err.message };
+      return { id, table: tableName(cfg), error: err.message };
     }
   }));
 }
@@ -191,11 +239,13 @@ export function parseDate(text, dayFirst = false) {
   if (!t) return null;
   let m = t.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/);
   if (m) return new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
-  m = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})(?:[ T](\d{1,2}):(\d{2}))?/);
+  m = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})(?:[ T,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?)?/);
   if (m) {
     const [a, b] = [+m[1], +m[2]];
     const [day, month] = dayFirst ? [a, b] : [b, a];
-    return new Date(+m[3], month - 1, day, +(m[4] || 0), +(m[5] || 0));
+    let hour = +(m[4] || 0);
+    if (m[7]) hour = (hour % 12) + (/p/i.test(m[7]) ? 12 : 0);   // 1:30 PM -> 13:30
+    return new Date(+m[3], month - 1, day, hour, +(m[5] || 0), +(m[6] || 0));
   }
   const d = new Date(t);
   return isNaN(d) ? null : d;
@@ -376,6 +426,10 @@ app.get("/api/sensors/:id/readings", async (req, res) => {
   if (!pool) return res.json(demoReadings(sensorId, days, "DEMO_MODE=true in server/.env"));
 
   try {
+    if (cfg.tables) {
+      const { rows, fieldNames } = await readPorts(cfg, days);
+      return res.json(shapeRows(sensorId, { ...cfg, table: tableName(cfg), time: "__time" }, rows, fieldNames));
+    }
     const T = q(cfg.table), TS = timeSql(cfg);
     const params = [];
     let where = `${TS} IS NOT NULL`;
@@ -389,7 +443,7 @@ app.get("/api/sensors/:id/readings", async (req, res) => {
     const result = await pool.query(sql, params);
     res.json(shapeRows(sensorId, cfg, result.rows, result.fields.map((f) => f.name)));
   } catch (err) {
-    console.error(`Query for sensor ${sensorId} (${cfg.table}) failed:`, err.message);
+    console.error(`Query for sensor ${sensorId} (${tableName(cfg)}) failed:`, err.message);
     if (DEMO_MODE === "auto") return res.json(demoReadings(sensorId, days, `Database error: ${err.message}`));
     res.status(500).json({ error: err.message });
   }

@@ -19,7 +19,6 @@
 { "type": "Feature", "properties": { "fid": 15, "id": 14, "sensor_typ": "Chameleon ", "installDat": null }, "geometry": { "type": "Point", "coordinates": [ 28.256665932588369, -25.7488258567804 ] } },
 { "type": "Feature", "properties": { "fid": 16, "id": 15, "sensor_typ": "Chameleon ", "installDat": null }, "geometry": { "type": "Point", "coordinates": [ 28.25664441101253, -25.748994145542383 ] } },
 { "type": "Feature", "properties": { "fid": 17, "id": 16, "sensor_typ": "Chameleon ", "installDat": null }, "geometry": { "type": "Point", "coordinates": [ 28.256635526195165, -25.749344718642533 ] } },
-{ "type": "Feature", "properties": { "fid": 18, "id": 18, "sensor_typ": "TERROS 21", "installDat": null }, "geometry": { "type": "Point", "coordinates": [ 28.256658266387717, -25.749008397476921 ] } },
 { "type": "Feature", "properties": { "fid": 19, "id": 19, "sensor_typ": "water_level", "installDat": "15/09/2026" }, "geometry": { "type": "Point", "coordinates": [ 28.258551924257169, -25.751914630952989 ] } },
 { "type": "Feature", "properties": { "fid": 20, "id": 20, "sensor_typ": "water_level", "installDat": "15/09/2026" }, "geometry": { "type": "Point", "coordinates": [ 28.258551242863494, -25.751945415945336 ] } },
 { "type": "Feature", "properties": { "fid": 21, "id": 21, "sensor_typ": "SIEMENS_recorder", "installDat": "15/09/2026" }, "geometry": { "type": "Point", "coordinates": [ 28.258551242863501, -25.751929578008141 ] } }

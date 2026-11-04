@@ -20,7 +20,7 @@
     irrigate: { label: "Irrigate",               colour: "#e03b3b" },
     monitor:  { label: "Monitor",                colour: "#f2c12e" },
     none:     { label: "No irrigation needed",   colour: "#41ab5d" },
-    postpone: { label: "Postpone – rain expected", colour: "#3b82f6" },
+    postpone: { label: "Postpone – rain", colour: "#3b82f6" },
   };
 
   // metres <-> degrees around the orchard (accurate enough at farm scale)
@@ -277,7 +277,7 @@
   function currentText(c) {
     if (!c || c.error) return "not available";
     const when = new Date(c.time).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-    const txt = `${c.rainingNow ? "raining" : "dry"}, ${c.rain24h} mm in last 24 h${c.temperature != null ? `, ${c.temperature} °C` : ""}
+    const txt = `${c.rainingNow ? "raining" : "dry"}, ${Math.round(c.rain24h * 10) / 10} mm in last 24 h${c.temperature != null ? `, ${Math.round(c.temperature * 10) / 10} °C` : ""}
       <br><small>${c.source}, ${when}</small>`;
     return c.tooOld ? `<em>too old to use (${Math.round(c.ageHours)} h)</em><br><small>${c.source}, ${when}</small>` : txt;
   }

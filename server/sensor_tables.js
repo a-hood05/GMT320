@@ -5,6 +5,7 @@
 //   table   - table name in the ftagisdatabase (exactly as in pgAdmin)
 //   time    - the time column, or ["date column", "time column"] when the
 //             date and time are stored separately
+//   tables  - (instead of table) several tables, one per logger port, joined on time
 //   columns - (optional) only show these columns; leave out to show every
 //             numeric column in the table
 //
@@ -41,9 +42,25 @@ export const SENSOR_TABLES = {
   "15": { table: "chameleon_EDD5", time: "time" },
   "16": { table: "chameleon_34CC", time: "time" },
 
-  // ---------- TEROS 21 sensors (treatment loggers) ----------
-  // e.g. "2": { table: "treatment 2_Port1", time: "timestamps" },
-  // Tables available: "treatment 2_Port1" .. "treatment 2_Port4",
-  // "Treatment 3_port1", "Treatment 3_port2"
-  // Map points that are TEROS 21: 2, 4, 18
+  // ---------- TEROS 21 sensors (treatment loggers, confirmed by the team, Nov 2026) ----------
+  // Each logger stores every port in its own table; the dashboard joins them on time
+  // and shows the columns as "Port 1 · ...", "Port 2 · ...".
+  // Map point 2 (the single TEROS in its row) = Treatment 3,
+  // map point 4 (the top one of the pair) = Treatment 2. Point 18 was removed from the map.
+  "4": {
+    time: "timestamps",
+    tables: [
+      { table: "treatment 2_Port1", label: "Port 1" },
+      { table: "treatment 2_Port2", label: "Port 2" },
+      { table: "treatment 2_Port3", label: "Port 3" },
+      { table: "treatment 2_Port4", label: "Port 4" },
+    ],
+  },
+  "2": {
+    time: "timestamps",
+    tables: [
+      { table: "Treatment 3_port1", label: "Port 1" },
+      { table: "Treatment 3_port2", label: "Port 2" },
+    ],
+  },
 };
