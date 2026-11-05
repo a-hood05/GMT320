@@ -2209,6 +2209,113 @@ Rynhard blog temp
         height: 240px;
     }
 }
+/*New blog post style to add to the project*/
+
+.blog-expanded-copy[hidden] {
+    display: none;
+}
+
+body.blog-dialog-open {
+    overflow: hidden;
+}
+
+.blog-dialog {
+    position: fixed;
+    inset: 0;
+    width: 80vw;
+    height: 90vh;
+    max-width: 80vw;
+    max-height: 90vh;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    color: #173c1d;
+    background: transparent;
+}
+
+.blog-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.72);
+}
+
+.blog-dialog__panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #f8f8f1;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+}
+
+.blog-dialog__back {
+    flex: 0 0 auto;
+    align-self: flex-end;
+    margin: 20px 24px 0;
+    padding: 11px 20px;
+    border: 0;
+    border-radius: 24px;
+    color: #fff;
+    background: #0c4018;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.blog-dialog__back:hover {
+    background: #1b5a25;
+}
+
+.blog-dialog__content {
+    overflow-y: auto;
+    padding: 12px 48px 42px;
+}
+
+.blog-dialog__media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.blog-dialog__media img {
+    display: block;
+    max-width: 100%;
+    max-height: 42vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.blog-dialog__media video {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 50%;
+    max-height: 50vh;
+    aspect-ratio: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    background: #000;
+    pointer-events: none;
+}
+
+.blog-dialog__tag {
+    color: #52634d;
+}
+
+.blog-dialog__content h2 {
+    margin-bottom: 16px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2rem;
+}
+
+.blog-dialog__excerpt,
+.blog-dialog__expanded p {
+    margin-bottom: 18px;
+    color: #465143;
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
 
 /* ==================================================
    ABOUT US
