@@ -38,21 +38,10 @@
 
   <h2>1. Install</h2>
   <p>You need <a href="https://nodejs.org">Node.js</a>, plus Tailscale connected for the PostgreSQL database.
-    In the inner <code>GMT320-Osimele</code> folder (the one with <code>package.json</code>):</p>
+    In the project folder (the one with <code>package.json</code>):</p>
   <pre><code>npm install</code></pre>
 
-  <h2>2. Settings file (server/.env)</h2>
-  <p>Copy <code>server/.env.example</code> to <code>server/.env</code> and fill in the database password.
-    <code>.env</code> is in <code>.gitignore</code>, so the database password never goes to GitHub.</p>
-  <pre><code># PostgreSQL (ask the team for the password)
-DB_host=100.105.1.96
-DB_port=5432
-DB_user=postgres
-DB_password=...
-DB_name=ftagisdatabase
-DEMO_MODE=auto</code></pre>
-
-  <h2>3. Run</h2>
+  <h2>2. Run</h2>
   <pre><code>npm run server</code></pre>
   <p>Then open <a href="http://localhost:3000/dashboard/dashboard.html">http://localhost:3000/dashboard/dashboard.html</a>
     (the website itself is at <a href="http://localhost:3000/">http://localhost:3000/</a>).
@@ -60,7 +49,7 @@ DEMO_MODE=auto</code></pre>
   <p class="note">Without the server, the website and the 2D and 3D maps still open (for example with Live Server or
     <code>npm run dev</code>), but sensor recordings, the irrigation decision and sign-in need the server.</p>
 
-  <h2>4. Other commands</h2>
+  <h2>3. Other commands</h2>
   <div class="table-wrap">
   <table>
     <tr><th>Command</th><th>What it does</th></tr>
@@ -72,7 +61,7 @@ DEMO_MODE=auto</code></pre>
   </table>
   </div>
 
-  <h2>5. Project folders</h2>
+  <h2>4. Project folders</h2>
   <div class="table-wrap">
   <table>
     <tr><th>Folder</th><th>What is in it</th></tr>
@@ -86,7 +75,7 @@ DEMO_MODE=auto</code></pre>
   </table>
   </div>
 
-  <h2>6. Who sees what (sign-in)</h2>
+  <h2>5. Who sees what (sign-in)</h2>
   <p>Without signing in, everyone sees the farm layout and the irrigation decision. The rules live in
     <code>dashboard/config/roles_config.js</code>; the server checks the same file before it sends any recordings.</p>
   <p>Sign-in passwords: <code>staff2026</code>, <code>manager2026</code>, <code>research2026</code> and <code>admin2026</code>.</p>
@@ -100,10 +89,11 @@ DEMO_MODE=auto</code></pre>
   </table>
   </div>
 
-  <h2>7. Where to change things</h2>
+  <h2>6. Where to change things</h2>
   <div class="table-wrap">
   <table>
     <tr><th>File</th><th>Change it to…</th></tr>
+    <tr><td><code>server/.env</code></td><td>Database connection, demo mode and the sign-in passwords.</td></tr>
     <tr><td><code>server/sensor_tables.js</code></td><td>Link a map sensor (its <code>id</code> in <code>sensor.geojson</code>) to its database table.</td></tr>
     <tr><td><code>dashboard/config/decision_config.js</code></td><td>Change the irrigation decision thresholds (dryness, rain, ETo, tanks).</td></tr>
     <tr><td><code>dashboard/config/roles_config.js</code></td><td>Change what each role may see.</td></tr>
@@ -111,7 +101,7 @@ DEMO_MODE=auto</code></pre>
   </table>
   </div>
 
-  <h2>8. Dashboard files</h2>
+  <h2>7. Dashboard files</h2>
   <div class="table-wrap">
   <table>
     <tr><th>File (in <code>dashboard/</code>)</th><th>What it does</th></tr>

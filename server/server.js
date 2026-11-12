@@ -83,7 +83,7 @@ const AUTH_SECRET = env("AUTH_SECRET") || crypto.randomBytes(32).toString("hex")
 const TOKEN_HOURS = 8;
 const usingDemoPasswords = Object.keys(DEMO_PASSWORDS).filter((k) => !env(k));
 if (usingDemoPasswords.length) {
-  console.warn(`! No ${usingDemoPasswords.join(", ")} in server/.env - using the demo passwords from server/.env.example`);
+  console.warn(`! No ${usingDemoPasswords.join(", ")} in server/.env - using the demo passwords`);
 }
 
 const sign = (data) => crypto.createHmac("sha256", AUTH_SECRET).update(data).digest("base64url");

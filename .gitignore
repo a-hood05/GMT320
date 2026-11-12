@@ -1,9 +1,6 @@
 # Installed packages (recreate with: npm install)
 node_modules/
 
-# Database password - never upload
-server/.env
-
 # Drone orthomosaics are too big for GitHub; the dashboard uses the PNGs in src/ndvi
 *.tif
 *.tif.aux.xml
