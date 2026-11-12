@@ -114,7 +114,7 @@
   const TOUR_3D = [
     {
       title: "Welcome to the 3D farm",
-      text: `This is a 3D digital twin of the UP Farm, connected to our <b>PostGIS spatial database</b>.
+      text: `This is a 3D digital twin of the UP Farm, connected to our <b>PostgreSQL database</b>.
              <br><br><b>Moving around:</b>
              <ul>
                <li><b>Left-drag</b> - move the map</li>

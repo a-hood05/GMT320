@@ -9,7 +9,7 @@
 // Database login: server/.env  (never commit this file)
 //
 // Start it with:   npm run server
-// It also serves the website: http://localhost:3000/src/dashboard.html
+// It also serves the website: http://localhost:3000/dashboard/dashboard.html
 // =====================================================================
 import express from "express";
 import cors from "cors";
@@ -69,14 +69,14 @@ app.use(express.static(ROOT));   // serves index.html, src/, etc.
 
 // ---------------------------------------------------------------------
 // ROLE-BASED ACCESS CONTROL
-// Who may see what: src/roles_config.js (the same file the dashboard uses).
+// Who may see what: dashboard/config/roles_config.js (the same file the dashboard uses).
 // Passwords: server/.env -> PASS_STAFF, PASS_MANAGER, PASS_RESEARCHER, PASS_ADMIN
 // Signing in returns a token (signed with AUTH_SECRET, valid 8 h). The browser sends
 // it with every request, and each endpoint checks the role's permissions,
 // so typing an API address into the browser can't get around the rules.
 // ---------------------------------------------------------------------
 const { ROLES_CONFIG: ROLES, PERMISSION_LABELS } = new Function(
-  fs.readFileSync(path.join(ROOT, "src", "roles_config.js"), "utf8") + "; return { ROLES_CONFIG, PERMISSION_LABELS };")();
+  fs.readFileSync(path.join(ROOT, "dashboard", "config", "roles_config.js"), "utf8") + "; return { ROLES_CONFIG, PERMISSION_LABELS };")();
 export { ROLES };
 const DEMO_PASSWORDS = { PASS_STAFF: "staff2026", PASS_MANAGER: "manager2026", PASS_RESEARCHER: "research2026", PASS_ADMIN: "admin2026" };
 const AUTH_SECRET = env("AUTH_SECRET") || crypto.randomBytes(32).toString("hex");   // random = everyone signs in again after a restart
@@ -551,7 +551,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   app.listen(PORT, async () => {
     console.log(`\nFarmTech Africa server running:`);
     console.log(`  Website:    http://localhost:${PORT}`);
-    console.log(`  Dashboard:  http://localhost:${PORT}/src/dashboard.html\n`);
+    console.log(`  Dashboard:  http://localhost:${PORT}/dashboard/dashboard.html\n`);
     if (!pool) return console.log("DEMO_MODE=true - not connecting to the database.");
     try {
       await pool.query("SELECT 1");

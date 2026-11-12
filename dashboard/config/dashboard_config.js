@@ -3,7 +3,7 @@
 // =====================================================================
 const DASHBOARD_CONFIG = {
 
-  // Where the PostGIS API (server/server.js) is running.
+  // Where the PostgreSQL API (server/server.js) is running.
   // If you open the dashboard through the server itself (http://localhost:3000)
   // this stays empty. If you use Vite / Live Server, it points to port 3000.
   API_BASE: (location.port === "3000") ? "" : "http://localhost:3000",
@@ -13,19 +13,21 @@ const DASHBOARD_CONFIG = {
   SENSOR_ID_FIELD: "id",
 
   // NDVI images: a list of the images with their dates.
-  // See ndvi/ndvi_manifest.json for the format.
-  NDVI_MANIFEST: "ndvi/ndvi_manifest.json",
+  // See src/ndvi/ndvi_manifest.json for the format.
+  NDVI_MANIFEST: "../src/ndvi/ndvi_manifest.json",
+  // The image paths inside the manifest start from the src folder (ndvi/...).
+  SRC_FOLDER: "../src/",
 
   // GeoJSON layers (same files as the 3D map uses)
   FILES: {
-    aoi:        "data/UP_farm_aoi.geojson",
-    buildings:  "data/building.geojson",
-    roads:      "data/road.geojson",
-    trees:      "data/tree.geojson",
-    irrigation: "data/irrigation.geojson",
-    tanks:      "data/rainwater_tank.geojson",
-    sensors:    "data/sensor.geojson",
-    aws:        "data/aws.geojson"          // Davis Vantage Pro2 weather station
+    aoi:        "../src/data/UP_farm_aoi.geojson",
+    buildings:  "../src/data/building.geojson",
+    roads:      "../src/data/road.geojson",
+    trees:      "../src/data/tree.geojson",
+    irrigation: "../src/data/irrigation.geojson",
+    tanks:      "../src/data/rainwater_tank.geojson",
+    sensors:    "../src/data/sensor.geojson",
+    aws:        "../src/data/aws.geojson"          // Davis Vantage Pro2 weather station
   },
 
   // Weather station representativeness rings - how far the AWS weather applies.

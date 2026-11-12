@@ -5,8 +5,8 @@
 // Paste the output to the team chat if something doesn't line up.
 // =====================================================================
 import pg from "pg";
-import { DB_CONFIG, q, timeSql } from "./server.js";
-import { SENSOR_TABLES } from "./sensor_tables.js";
+import { DB_CONFIG, q, timeSql } from "../server/server.js";
+import { SENSOR_TABLES } from "../server/sensor_tables.js";
 
 const client = new pg.Client(DB_CONFIG);
 

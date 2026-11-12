@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Journey Begins - FarmTech Africa</title>
+  <!-- Blog post page. Self-contained styles, so it cannot affect the main website. -->
+  <style>
+    :root { --green: #0f3d1e; --leaf: #8bd64a; --sand: #e3e4d6; --ink: #1f2a22; --muted: #5b675e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f6f6f1; color: var(--ink); font-family: Arial, Helvetica, sans-serif; line-height: 1.7; }
+    header { background: var(--sand); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    header a.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--green); font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: bold; }
+    header img { width: 52px; height: 52px; border-radius: 12px; background: #fff; }
+    .back { background: var(--green); color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 999px; font-weight: bold; white-space: nowrap; }
+    .back:hover { background: #17542b; }
+    article { max-width: 780px; margin: 0 auto; padding: 48px 16px 72px; }
+    .tag { color: #4e8a2a; text-transform: uppercase; letter-spacing: 2px; font-size: 13px; font-weight: bold; margin: 0; }
+    h1 { font-family: Georgia, "Times New Roman", serif; color: var(--green); font-size: clamp(32px, 6vw, 48px); line-height: 1.15; margin: 10px 0 8px; }
+    .meta { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+    figure { margin: 0 0 32px; }
+    figure img { width: 100%; border-radius: 16px; display: block; }
+    figcaption { color: var(--muted); font-size: 14px; margin-top: 8px; }
+    h2 { font-family: Georgia, "Times New Roman", serif; color: var(--green); font-size: 26px; margin: 36px 0 8px; }
+    p { margin: 0 0 16px; font-size: 18px; }
+    .next { margin-top: 40px; padding: 20px 24px; background: var(--green); color: #fff; border-radius: 16px; }
+    .next p { margin: 0; font-size: 17px; }
+    .next a { color: var(--leaf); font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="../index.html"><img src="../src/farm-africa-logo.png" alt="FarmTech Africa logo">FarmTech Africa</a>
+    <a class="back" href="../index.html#blog">← Back to the blog</a>
+  </header>
+
+  <article>
+    <p class="tag">Planning phase research</p>
+    <h1>The Journey Begins</h1>
+    <p class="meta">FarmTech Africa project team</p>
+
+    <figure>
+      <img src="../src/blog_media/project_team_aws.jpeg" alt="The project team at the Automatic Weather Station">
+      <figcaption>Our first project team picture, at the Automatic Weather Station (AWS).</figcaption>
+    </figure>
+
+    <p>Our project started in the planning phase. Before we could build a smart irrigation system, we first needed to know
+      what data we could actually use - so the project team set out across the University of Pretoria's Hatfield campus
+      in search of data sources.</p>
+
+    <h2>Looking for sensors and data</h2>
+    <p>We spoke to lecturers and department heads in fields related to our project, looking for sensors we could use
+      for free to collect data. Every conversation helped us understand which data already exists on campus and who
+      looks after it.</p>
+
+    <h2>Finding the weather station</h2>
+    <p>During this search we came across the Meteorology department, which houses an Automatic Weather Station (AWS) on top
+      of the Geography building. We received permission to view the AWS, and that is where we took our first project team
+      picture.</p>
+    <p>Weather data is one of the key inputs of a smart irrigation system: knowing whether it is raining, how much rain
+      has fallen and how hot and dry it is helps decide whether the crops need water at all.</p>
+
+    <div class="next">
+      <p>This was the first step of our journey. See how all of this data comes together in our
+        <a href="../dashboard/dashboard.html">FarmTech Africa dashboard</a>.</p>
+    </div>
+  </article>
+</body>
+</html>

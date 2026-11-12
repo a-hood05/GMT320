@@ -11,8 +11,17 @@ Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 // ---------------------------------------------------------------------
 // STEP 1 - Create the viewer (the 3D globe)
 // ---------------------------------------------------------------------
+// Real ground elevation from Cesium ion. If it can't load (no internet, network
+// blocks cesium.com), fall back to a flat globe so the map still shows
+// instead of an empty black "space" view.
+const worldTerrain = Cesium.Terrain.fromWorldTerrain();
+worldTerrain.errorEvent.addEventListener((err) => {
+  console.warn("World terrain unavailable - using a flat globe", err);
+  viewer.scene.setTerrain(new Cesium.Terrain(Promise.resolve(new Cesium.EllipsoidTerrainProvider())));
+});
+
 const viewer = new Cesium.Viewer("cesiumContainer", {
-  terrain: Cesium.Terrain.fromWorldTerrain(), // real ground elevation
+  terrain: worldTerrain,   // real ground elevation
   baseLayerPicker: true,   // switch background maps (satellite, streets...)
   geocoder: false,         // hide the search box
   timeline: false,         // hide the time bar
@@ -31,16 +40,16 @@ viewer.scene.maximumRenderTimeChange = Infinity;
 
 
 // ---------------------------------------------------------------------
-// STEP 2 - Your data files (must be in the same folder as index.html)
+// STEP 2 - Your data files (GeoJSON files in src/data)
 // ---------------------------------------------------------------------
 const FILES = {
-  aoi:        "data/UP_farm_aoi.geojson",   // farm boundary (polygon)
-  buildings:  "data/building.geojson",      // polygons
-  roads:      "data/road.geojson",          // lines
-  trees:      "data/tree.geojson",          // points (or polygons)
-  irrigation: "data/irrigation.geojson",    // lines
-  tanks:      "data/rainwater_tank.geojson",// points (or polygons)
-  sensors:    "data/sensor.geojson"         // points
+  aoi:        "../src/data/UP_farm_aoi.geojson",   // farm boundary (polygon)
+  buildings:  "../src/data/building.geojson",      // polygons
+  roads:      "../src/data/road.geojson",          // lines
+  trees:      "../src/data/tree.geojson",          // points (or polygons)
+  irrigation: "../src/data/irrigation.geojson",    // lines
+  tanks:      "../src/data/rainwater_tank.geojson",// points (or polygons)
+  sensors:    "../src/data/sensor.geojson"         // points
 };
 
 // We store every loaded layer here so the checkboxes can show/hide them

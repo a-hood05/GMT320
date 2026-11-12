@@ -563,7 +563,7 @@ function buildDashboard(data) {
 
 /* =========================================================
    21. NDVI / NDRE TIME SLIDER
-   The images are made by server/make_vegetation_indices.py, which writes
+   The images are made by scripts/make_vegetation_indices.js, which writes
    a coloured PNG per date + index and src/ndvi/ndvi_manifest.json:
    { "indices": { "ndvi": {...legend}, "ndre": {...legend} },
      "dates": [ { "date": "2026-08-14",
@@ -659,7 +659,7 @@ function buildDashboard(data) {
     }
     var key = layerInfo.file;
     if (!state.overlays[key]) {
-      state.overlays[key] = L.imageOverlay(layerInfo.file, layerInfo.bounds,
+      state.overlays[key] = L.imageOverlay(DASHBOARD_CONFIG.SRC_FOLDER + layerInfo.file, layerInfo.bounds,
         { pane: 'ndviPane', opacity: opacity(), interactive: false });
     }
     state.current = state.overlays[key].setOpacity(opacity()).addTo(map);

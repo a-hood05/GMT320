@@ -203,7 +203,7 @@ body {
 
     position: relative;
 
-    background-image: url("src/hero-farmland.jpg");
+    background-image: url("../src/hero-farmland.jpg");
 
     background-size: cover;
 
@@ -1937,7 +1937,7 @@ body {
             rgba(4,45,12,0.86),
             rgba(4,45,12,0.86)
         ),
-        url("src/hero-farmland.jpg");
+        url("../src/hero-farmland.jpg");
 
     background-size: cover;
 

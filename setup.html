@@ -33,18 +33,18 @@
 <body>
 <main>
   <h1>Dashboard setup</h1>
-  <p class="sub">How to run the FarmTech Africa smart irrigation dashboard (2D map, 3D farm, PostGIS data, sign-in).
+  <p class="sub">How to run the FarmTech Africa smart irrigation dashboard (2D map, 3D farm, PostgreSQL data, sign-in).
     <a href="index.html">← Back to the website</a></p>
 
   <h2>1. Install</h2>
-  <p>You need <a href="https://nodejs.org">Node.js</a>, plus Tailscale connected for the PostGIS database.
+  <p>You need <a href="https://nodejs.org">Node.js</a>, plus Tailscale connected for the PostgreSQL database.
     In the inner <code>GMT320-Osimele</code> folder (the one with <code>package.json</code>):</p>
   <pre><code>npm install</code></pre>
 
   <h2>2. Settings file (server/.env)</h2>
   <p>Copy <code>server/.env.example</code> to <code>server/.env</code> and fill in the real values.
     <code>.env</code> is in <code>.gitignore</code>, so the passwords never go to GitHub.</p>
-  <pre><code># PostGIS (ask the team for the password)
+  <pre><code># PostgreSQL (ask the team for the password)
 DB_host=100.105.1.96
 DB_port=5432
 DB_user=postgres
@@ -61,9 +61,10 @@ AUTH_SECRET=...   # any long random text</code></pre>
 
   <h2>3. Run</h2>
   <pre><code>npm run server</code></pre>
-  <p>Then open <a href="http://localhost:3000/src/dashboard.html">http://localhost:3000/src/dashboard.html</a>.
+  <p>Then open <a href="http://localhost:3000/dashboard/dashboard.html">http://localhost:3000/dashboard/dashboard.html</a>
+    (the website itself is at <a href="http://localhost:3000/">http://localhost:3000/</a>).
     Check the database connection at <a href="http://localhost:3000/api/health">/api/health</a>.</p>
-  <p class="note">Without the server, the 2D and 3D maps still open (for example with Live Server or
+  <p class="note">Without the server, the website and the 2D and 3D maps still open (for example with Live Server or
     <code>npm run dev</code>), but sensor recordings, the irrigation decision and sign-in need the server.</p>
 
   <h2>4. Other commands</h2>
@@ -73,14 +74,28 @@ AUTH_SECRET=...   # any long random text</code></pre>
     <tr><td><code>npm run dbcheck</code></td><td>Lists every database table with its columns and a sample row.</td></tr>
     <tr><td><code>npm run indices</code></td><td>Makes the NDVI, NDRE and canopy temperature images from the MicaSense Altum
       orthomosaics in <code>C:\Users\noesi\Downloads\drone_images</code> (date from the name, e.g.
-      <code>251209ortho.tif</code> = 9 Dec 2025). Refresh the dashboard afterwards.</td></tr>
+      <code>251209ortho.tif</code> = 9 Dec 2025) and saves them in <code>src/ndvi</code>. Refresh the dashboard afterwards.</td></tr>
     <tr><td><code>npm run dev</code></td><td>Vite development server for the website.</td></tr>
   </table>
   </div>
 
-  <h2>5. Who sees what (sign-in)</h2>
+  <h2>5. Project folders</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Folder</th><th>What is in it</th></tr>
+    <tr><td><code>index.html</code>, <code>setup.html</code></td><td>The website's home page and this setup page</td></tr>
+    <tr><td><code>website/</code></td><td>Website styling and the blog pages</td></tr>
+    <tr><td><code>dashboard/</code></td><td>The dashboard: 2D map, 3D farm, decision, sign-in and tour</td></tr>
+    <tr><td><code>dashboard/config/</code></td><td>Settings you can change without touching the code</td></tr>
+    <tr><td><code>server/</code></td><td>Node.js server between the dashboard and the PostgreSQL database</td></tr>
+    <tr><td><code>scripts/</code></td><td>Tools run from the terminal (drone images, database check)</td></tr>
+    <tr><td><code>src/</code></td><td>Pictures, videos, GeoJSON layers (<code>src/data</code>), drone images (<code>src/ndvi</code>) and the logo and website photos</td></tr>
+  </table>
+  </div>
+
+  <h2>6. Who sees what (sign-in)</h2>
   <p>Without signing in, everyone sees the farm layout and the irrigation decision. The rules live in
-    <code>src/roles_config.js</code>; the server checks the same file before it sends any recordings.</p>
+    <code>dashboard/config/roles_config.js</code>; the server checks the same file before it sends any recordings.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Role</th><th>Sees in addition</th></tr>
@@ -91,31 +106,30 @@ AUTH_SECRET=...   # any long random text</code></pre>
   </table>
   </div>
 
-  <h2>6. Where to change things</h2>
+  <h2>7. Where to change things</h2>
   <div class="table-wrap">
   <table>
     <tr><th>File</th><th>Change it to…</th></tr>
     <tr><td><code>server/sensor_tables.js</code></td><td>Link a map sensor (its <code>id</code> in <code>sensor.geojson</code>) to its database table.</td></tr>
-    <tr><td><code>src/decision_config.js</code></td><td>Change the irrigation decision thresholds (dryness, rain, ETo, tanks).</td></tr>
-    <tr><td><code>src/roles_config.js</code></td><td>Change what each role may see.</td></tr>
-    <tr><td><code>src/dashboard_config.js</code></td><td>Change the server address, data files and the weather-station rings.</td></tr>
+    <tr><td><code>dashboard/config/decision_config.js</code></td><td>Change the irrigation decision thresholds (dryness, rain, ETo, tanks).</td></tr>
+    <tr><td><code>dashboard/config/roles_config.js</code></td><td>Change what each role may see.</td></tr>
+    <tr><td><code>dashboard/config/dashboard_config.js</code></td><td>Change the server address, data files and the weather-station rings.</td></tr>
   </table>
   </div>
 
-  <h2>7. Dashboard files</h2>
+  <h2>8. Dashboard files</h2>
   <div class="table-wrap">
   <table>
-    <tr><th>File</th><th>What it does</th></tr>
-    <tr><td><code>src/dashboard.html / .css</code></td><td>The dashboard page with the 2D Map / 3D Farm switch</td></tr>
-    <tr><td><code>src/dashboard.js</code></td><td>Switches views; loads Cesium only when the 3D farm is opened</td></tr>
-    <tr><td><code>src/dashboard_2d.js</code></td><td>2D map: statistics, filters, popups, legend, drone image time slider</td></tr>
-    <tr><td><code>src/main_cesium.js</code></td><td>3D farm: terrain, buildings, roads, trees, tanks, sensors</td></tr>
-    <tr><td><code>src/dashboard_3d.js</code></td><td>3D readings panel (click a sensor or the AWS)</td></tr>
-    <tr><td><code>src/dashboard_3d_layers.js</code></td><td>Soil pillars, drone imagery on the terrain, weather station, map key</td></tr>
-    <tr><td><code>src/dashboard_3d_decision.js</code></td><td>Smart irrigation decision (IDW, rules, decision card)</td></tr>
-    <tr><td><code>src/auth.js</code></td><td>Sign-in dialog and hiding what a role may not see</td></tr>
-    <tr><td><code>src/tour.js</code></td><td>Guided tour for the 2D and 3D views</td></tr>
-    <tr><td><code>server/server.js</code></td><td>Node server between the dashboard and PostGIS; checks sign-in</td></tr>
+    <tr><th>File (in <code>dashboard/</code>)</th><th>What it does</th></tr>
+    <tr><td><code>dashboard.html / .css</code></td><td>The dashboard page with the 2D Map / 3D Farm switch</td></tr>
+    <tr><td><code>dashboard.js</code></td><td>Switches views; loads Cesium only when the 3D farm is opened</td></tr>
+    <tr><td><code>dashboard_2d.js</code></td><td>2D map: statistics, filters, popups, legend, drone image time slider</td></tr>
+    <tr><td><code>main_cesium.js</code></td><td>3D farm: terrain, buildings, roads, trees, tanks, sensors</td></tr>
+    <tr><td><code>dashboard_3d.js</code></td><td>3D readings panel (click a sensor or the AWS)</td></tr>
+    <tr><td><code>dashboard_3d_layers.js</code></td><td>Soil pillars, drone imagery on the terrain, weather station, map key</td></tr>
+    <tr><td><code>dashboard_3d_decision.js</code></td><td>Smart irrigation decision (IDW, rules, decision card)</td></tr>
+    <tr><td><code>auth.js</code></td><td>Sign-in dialog and hiding what a role may not see</td></tr>
+    <tr><td><code>tour.js</code></td><td>Guided tour for the 2D and 3D views</td></tr>
   </table>
   </div>
 </main>

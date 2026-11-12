@@ -2,7 +2,7 @@
 // 3D FARM - extra data layers
 //   1. Soil moisture profiles: every Chameleon sensor gets a 3-part pillar
 //      (top = 20 cm, middle = 50 cm, bottom = 80 cm) coloured by its latest
-//      Wet / Moist / Dry status from the PostGIS database, and the sensor dot
+//      Wet / Moist / Dry status from the PostgreSQL database, and the sensor dot
 //      itself takes the colour of the 20 cm reading.
 //   2. Drone imagery (NDVI / NDRE / canopy temperature) draped over the
 //      terrain, using the same images and dates as the 2D time slider.
@@ -140,7 +140,7 @@
 
     if (!img.cache[info.file]) {
       const [[s, w], [n, e]] = info.bounds;
-      const provider = await Cesium.SingleTileImageryProvider.fromUrl(info.file, {
+      const provider = await Cesium.SingleTileImageryProvider.fromUrl(cfg.SRC_FOLDER + info.file, {
         rectangle: Cesium.Rectangle.fromDegrees(w, s, e, n),
       });
       img.cache[info.file] = new Cesium.ImageryLayer(provider);
@@ -250,7 +250,7 @@
         });
       });
     })
-    .catch((err) => console.warn("No weather station file (data/aws.geojson)", err));
+    .catch((err) => console.warn("No weather station file (src/data/aws.geojson)", err));
 
   function setRange(on) {
     awsRange.show = on;

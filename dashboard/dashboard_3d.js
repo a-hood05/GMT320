@@ -1,5 +1,5 @@
 // =====================================================================
-// 3D FARM - click a sensor to see its recordings from PostGIS
+// 3D FARM - click a sensor to see its recordings from PostgreSQL
 // Runs after main_cesium.js, so it can use `viewer`, `layers` and `getProp`
 // from that file.
 // =====================================================================
@@ -132,7 +132,7 @@
       pill.textContent = "● Not linked to the database yet";
     } else if (data.source === "postgis") {
       pill.className = "source-pill live";
-      pill.textContent = `● Live from PostGIS · ${data.table}`;
+      pill.textContent = `● Live from PostgreSQL · ${data.table}`;
     } else {
       pill.className = "source-pill demo";
       pill.textContent = "● Demo data (database not connected)";
