@@ -1,8 +1,7 @@
 // =====================================================================
-// Quick database check:  npm run dbcheck
+// Quick database check.
 // Lists every table with its columns, row count and time range, and checks
 // that every sensor in sensor_tables.js points to a table that exists.
-// Paste the output to the team chat if something doesn't line up.
 // =====================================================================
 import pg from "pg";
 import { DB_CONFIG, q, timeSql } from "../server/server.js";

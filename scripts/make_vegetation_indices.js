@@ -13,12 +13,6 @@
 //   3. saves a coloured, transparent PNG of each layer in src/ndvi/
 //   4. works out the mean of each layer inside the pecan orchard
 //   5. writes src/ndvi/ndvi_manifest.json -> the dashboard's time slider
-//
-// HOW TO RUN
-//   1. Put the orthomosaics in C:\Users\noesi\Downloads\drone_images
-//   2. In the project folder:   npm install          (once - installs geotiff)
-//                               npm run indices
-//   3. Refresh the dashboard.
 // =====================================================================
 import fs from "node:fs";
 import path from "node:path";
@@ -29,8 +23,8 @@ import { fileURLToPath } from "node:url";
 // SETTINGS
 // ---------------------------------------------------------------------
 
-// Folder with the orthomosaics (.tif)
-const INPUT_FOLDER = "C:\\Users\\noesi\\Downloads\\drone_images";
+// Folder with the orthomosaics (.tif), next to package.json
+const INPUT_FOLDER = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "drone_images");
 
 // The date is read from the file name: 251209ortho.tif -> 2025-12-09.
 // Add a file here to override its date or give it a label for the slider.

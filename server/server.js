@@ -1,15 +1,14 @@
 // =====================================================================
-// FARMTECH AFRICA - small API between the dashboard and the PostGIS database
+// FARMTECH AFRICA - small API between the dashboard and the PostgreSQL database
 //
 // Browsers can't talk to a database directly, so this server does it:
 //   GET /api/health                        -> is the database connected?
 //   GET /api/sensors/:id/readings?days=7   -> recordings for one map sensor
 //
 // Which table belongs to which sensor: server/sensor_tables.js
-// Database login: server/.env  (never commit this file)
+// Database login: server/.env
 //
-// Start it with:   npm run server
-// It also serves the website: http://localhost:3000/dashboard/dashboard.html
+// It also serves the website and the dashboard.
 // =====================================================================
 import express from "express";
 import cors from "cors";

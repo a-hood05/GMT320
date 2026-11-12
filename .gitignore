@@ -2,6 +2,7 @@
 node_modules/
 
 # Drone orthomosaics are too big for GitHub; the dashboard uses the PNGs in src/ndvi
+drone_images/
 *.tif
 *.tif.aux.xml
 

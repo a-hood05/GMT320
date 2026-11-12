@@ -10,7 +10,6 @@
 //             numeric column in the table
 //
 // Sensors that are not in this list show "not linked to the database yet".
-// Run  npm run dbcheck  to see every table and its columns.
 // =====================================================================
 
 // " 9/22/2026" + "13:45:00"  ->  2026-09-22 13:45

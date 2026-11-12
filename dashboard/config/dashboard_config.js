@@ -4,8 +4,7 @@
 const DASHBOARD_CONFIG = {
 
   // Where the PostgreSQL API (server/server.js) is running.
-  // If you open the dashboard through the server itself (http://localhost:3000)
-  // this stays empty. If you use Vite / Live Server, it points to port 3000.
+  // Empty when the page comes from our own server (port 3000), otherwise port 3000.
   API_BASE: (location.port === "3000") ? "" : "http://localhost:3000",
 
   // Which attribute in sensor.geojson matches the sensor id in the database.
