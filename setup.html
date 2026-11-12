@@ -42,22 +42,15 @@
   <pre><code>npm install</code></pre>
 
   <h2>2. Settings file (server/.env)</h2>
-  <p>Copy <code>server/.env.example</code> to <code>server/.env</code> and fill in the real values.
-    <code>.env</code> is in <code>.gitignore</code>, so the passwords never go to GitHub.</p>
+  <p>Copy <code>server/.env.example</code> to <code>server/.env</code> and fill in the database password.
+    <code>.env</code> is in <code>.gitignore</code>, so the database password never goes to GitHub.</p>
   <pre><code># PostgreSQL (ask the team for the password)
 DB_host=100.105.1.96
 DB_port=5432
 DB_user=postgres
 DB_password=...
 DB_name=ftagisdatabase
-DEMO_MODE=auto
-
-# Sign-in passwords per role
-PASS_STAFF=...
-PASS_MANAGER=...
-PASS_RESEARCHER=...
-PASS_ADMIN=...
-AUTH_SECRET=...   # any long random text</code></pre>
+DEMO_MODE=auto</code></pre>
 
   <h2>3. Run</h2>
   <pre><code>npm run server</code></pre>
@@ -96,6 +89,7 @@ AUTH_SECRET=...   # any long random text</code></pre>
   <h2>6. Who sees what (sign-in)</h2>
   <p>Without signing in, everyone sees the farm layout and the irrigation decision. The rules live in
     <code>dashboard/config/roles_config.js</code>; the server checks the same file before it sends any recordings.</p>
+  <p>Sign-in passwords: <code>staff2026</code>, <code>manager2026</code>, <code>research2026</code> and <code>admin2026</code>.</p>
   <div class="table-wrap">
   <table>
     <tr><th>Role</th><th>Sees in addition</th></tr>
