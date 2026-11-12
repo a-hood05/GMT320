@@ -1,2 +1,16 @@
+# Installed packages (recreate with: npm install)
 node_modules/
+
+# Database password - never upload
 server/.env
+
+# Drone orthomosaics are too big for GitHub; the dashboard uses the PNGs in src/ndvi
+*.tif
+*.tif.aux.xml
+
+# Editor and system files
+.vscode/
+desktop.ini
+Thumbs.db
+.DS_Store
+npm-debug.log*
