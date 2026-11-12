@@ -1943,10 +1943,53 @@ body {
 
     background-position: center;
 
+    flex-wrap: wrap;
+
+    gap: 50px 60px;
+
+}
+
+
+.cesium-video {
+
+    flex: 1.2 1 420px;
+
+    max-width: 720px;
+
+    margin: 0;
+
+}
+
+
+.cesium-video video {
+
+    display: block;
+
+    width: 100%;
+
+    border-radius: 18px;
+
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+
+    background: #0b2410;
+
+}
+
+
+.cesium-video figcaption {
+
+    color: #c9d3c2;
+
+    font-size: 15px;
+
+    margin-top: 12px;
+
 }
 
 
 .cesium-content {
+
+    flex: 1 1 380px;
 
     max-width: 700px;
 
